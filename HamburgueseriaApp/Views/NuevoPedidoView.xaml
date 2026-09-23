@@ -1,0 +1,186 @@
+<UserControl x:Class="HamburgueseriaApp.Views.NuevoPedidoView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:models="clr-namespace:HamburgueseriaApp.Models">
+
+    <Grid Margin="24,0,24,24">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="1.35*"/>
+            <ColumnDefinition Width="16"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <!-- ===================== PRODUCTOS ===================== -->
+        <ScrollViewer Grid.Column="0" VerticalScrollBarVisibility="Auto">
+            <StackPanel>
+                <TextBlock Text="HAMBURGUESAS" FontWeight="Bold" FontSize="16"
+                           Foreground="{StaticResource BrushAmarillo}" Margin="0,4,0,4"/>
+                <ItemsControl ItemsSource="{Binding Hamburguesas}">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <UniformGrid Columns="3"/>
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate DataType="{x:Type models:Producto}">
+                            <Button Style="{StaticResource BotonGrande}"
+                                    Command="{Binding DataContext.AgregarProductoCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                    CommandParameter="{Binding}">
+                                <StackPanel>
+                                    <TextBlock Text="{Binding Nombre}" FontSize="19" FontWeight="Bold"
+                                               HorizontalAlignment="Center" TextWrapping="Wrap" TextAlignment="Center"/>
+                                    <TextBlock Text="{Binding Precio, StringFormat='$ {0:N0}'}" FontSize="15"
+                                               HorizontalAlignment="Center" Opacity="0.85" Margin="0,4,0,0"/>
+                                </StackPanel>
+                            </Button>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+
+                <TextBlock Text="PAPAS Y EXTRAS" FontWeight="Bold" FontSize="16"
+                           Foreground="{StaticResource BrushAmarillo}" Margin="0,18,0,4"/>
+                <ItemsControl ItemsSource="{Binding PapasYExtras}">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <UniformGrid Columns="3"/>
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate DataType="{x:Type models:Producto}">
+                            <Button Style="{StaticResource BotonGrande}"
+                                    Command="{Binding DataContext.AgregarProductoCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                    CommandParameter="{Binding}">
+                                <StackPanel>
+                                    <TextBlock Text="{Binding Nombre}" FontSize="17" FontWeight="Bold"
+                                               HorizontalAlignment="Center" TextWrapping="Wrap" TextAlignment="Center"/>
+                                    <TextBlock Text="{Binding Precio, StringFormat='$ {0:N0}'}" FontSize="14"
+                                               HorizontalAlignment="Center" Opacity="0.85" Margin="0,4,0,0"/>
+                                </StackPanel>
+                            </Button>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+
+                <TextBlock Text="BEBIDAS" FontWeight="Bold" FontSize="16"
+                           Foreground="{StaticResource BrushAmarillo}" Margin="0,18,0,4"/>
+                <ItemsControl ItemsSource="{Binding Bebidas}">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <UniformGrid Columns="3"/>
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate DataType="{x:Type models:Producto}">
+                            <Button Style="{StaticResource BotonGrande}"
+                                    Command="{Binding DataContext.AgregarProductoCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                    CommandParameter="{Binding}">
+                                <StackPanel>
+                                    <TextBlock Text="{Binding Nombre}" FontSize="17" FontWeight="Bold"
+                                               HorizontalAlignment="Center" TextWrapping="Wrap" TextAlignment="Center"/>
+                                    <TextBlock Text="{Binding Precio, StringFormat='$ {0:N0}'}" FontSize="14"
+                                               HorizontalAlignment="Center" Opacity="0.85" Margin="0,4,0,0"/>
+                                </StackPanel>
+                            </Button>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </StackPanel>
+        </ScrollViewer>
+
+        <!-- ===================== PEDIDO ACTUAL ===================== -->
+        <Border Grid.Column="2" Background="{StaticResource BrushPanel}" CornerRadius="12" Padding="18">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <TextBlock Grid.Row="0" Text="PEDIDO ACTUAL" FontSize="18" FontWeight="Bold" Margin="0,0,0,10"/>
+
+                <!-- Lista de items -->
+                <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+                    <ItemsControl ItemsSource="{Binding Items}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border Background="{StaticResource BrushPanelClaro}" CornerRadius="8" Padding="10" Margin="0,0,0,8">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+
+                                        <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                                            <Button Content="−" Style="{StaticResource BotonChico}"
+                                                    Command="{Binding DataContext.DecrementarCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                    CommandParameter="{Binding}"/>
+                                            <TextBlock Text="{Binding Cantidad}" FontSize="17" FontWeight="Bold"
+                                                       Width="30" TextAlignment="Center" VerticalAlignment="Center"/>
+                                            <Button Content="+" Style="{StaticResource BotonChico}"
+                                                    Command="{Binding DataContext.IncrementarCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                    CommandParameter="{Binding}"/>
+                                        </StackPanel>
+
+                                        <TextBlock Grid.Column="1" Text="{Binding Nombre}" FontSize="16"
+                                                   VerticalAlignment="Center" Margin="12,0" TextWrapping="Wrap"/>
+
+                                        <TextBlock Grid.Column="2" Text="{Binding Subtotal, StringFormat='$ {0:N0}'}"
+                                                   FontSize="16" FontWeight="Bold" VerticalAlignment="Center"
+                                                   Foreground="{StaticResource BrushAmarillo}"/>
+
+                                        <Button Grid.Column="3" Content="✕" Style="{StaticResource BotonChico}" Margin="8,0,0,0"
+                                                Command="{Binding DataContext.EliminarItemCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                CommandParameter="{Binding}"/>
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </ScrollViewer>
+
+                <TextBlock Grid.Row="1" Text="Tocá un producto de la izquierda para agregarlo"
+                           Foreground="{StaticResource BrushTextoSecundario}" TextWrapping="Wrap"
+                           VerticalAlignment="Top" Margin="0,20,0,0"
+                           Visibility="{Binding HayItems, Converter={StaticResource BoolToCollapsedConverter}}"/>
+
+                <!-- Observaciones -->
+                <StackPanel Grid.Row="2" Margin="0,10,0,10">
+                    <TextBlock Text="Observaciones" Foreground="{StaticResource BrushTextoSecundario}" Margin="0,0,0,4"/>
+                    <TextBox Text="{Binding Observaciones, UpdateSourceTrigger=PropertyChanged}"
+                             AcceptsReturn="True" TextWrapping="Wrap" Height="70"
+                             VerticalScrollBarVisibility="Auto"/>
+                </StackPanel>
+
+                <!-- Forma de pago -->
+                <StackPanel Grid.Row="3" Orientation="Horizontal" Margin="0,0,0,10" HorizontalAlignment="Stretch">
+                    <RadioButton Content="EFECTIVO" GroupName="FormaPago" FontSize="16" Margin="0,0,20,0"
+                                 IsChecked="{Binding FormaPagoSeleccionada, Converter={StaticResource EnumToBoolConverter}, ConverterParameter=Efectivo}"/>
+                    <RadioButton Content="TRANSFERENCIA" GroupName="FormaPago" FontSize="16"
+                                 IsChecked="{Binding FormaPagoSeleccionada, Converter={StaticResource EnumToBoolConverter}, ConverterParameter=Transferencia}"/>
+                </StackPanel>
+
+                <!-- Total -->
+                <Border Grid.Row="4" Background="{StaticResource BrushPanelClaro}" CornerRadius="8" Padding="14,10" Margin="0,0,0,12">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Text="TOTAL" FontSize="20" VerticalAlignment="Center"/>
+                        <TextBlock Grid.Column="1" Text="{Binding Total, StringFormat='$ {0:N0}'}"
+                                   FontSize="30" FontWeight="Bold" Foreground="{StaticResource BrushAmarillo}"/>
+                    </Grid>
+                </Border>
+
+                <!-- Botón cobrar -->
+                <Button Grid.Row="5" Content="COBRAR E IMPRIMIR" Style="{StaticResource BotonCobrar}"
+                        Command="{Binding CobrarEImprimirCommand}"/>
+            </Grid>
+        </Border>
+    </Grid>
+</UserControl>

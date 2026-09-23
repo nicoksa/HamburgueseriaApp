@@ -1,0 +1,298 @@
+<UserControl x:Class="HamburgueseriaApp.Views.EstadisticasView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <UserControl.Resources>
+        <Style x:Key="Tarjeta" TargetType="Border">
+            <Setter Property="Background" Value="{StaticResource BrushPanel}"/>
+            <Setter Property="CornerRadius" Value="12"/>
+            <Setter Property="Padding" Value="18"/>
+            <Setter Property="Margin" Value="0,0,14,14"/>
+        </Style>
+        <Style x:Key="TarjetaTitulo" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="{StaticResource BrushTextoSecundario}"/>
+            <Setter Property="FontSize" Value="14"/>
+        </Style>
+        <Style x:Key="TarjetaValor" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="26"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Foreground" Value="{StaticResource BrushAmarillo}"/>
+            <Setter Property="Margin" Value="0,4,0,0"/>
+        </Style>
+    </UserControl.Resources>
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <StackPanel Margin="24,0,24,24">
+
+            <!-- ===================== SELECTOR DE PERÍODO ===================== -->
+            <Border Style="{StaticResource Tarjeta}" Margin="0,0,0,14">
+                <StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
+                        <RadioButton Content="Por día" GroupName="ModoEstadisticas" VerticalAlignment="Center"
+                                     FontSize="15" Margin="0,0,24,0"
+                                     IsChecked="{Binding Modo, Converter={StaticResource EnumToBoolConverter}, ConverterParameter=PorDia}"/>
+                        <RadioButton Content="Por rango de fechas" GroupName="ModoEstadisticas" VerticalAlignment="Center"
+                                     FontSize="15"
+                                     IsChecked="{Binding Modo, Converter={StaticResource EnumToBoolConverter}, ConverterParameter=PorRango}"/>
+                    </StackPanel>
+
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
+                        <!-- Modo por día -->
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center"
+                                    Visibility="{Binding EsModoDia, Converter={StaticResource BoolToVisibleConverter}}">
+                            <TextBlock Text="Fecha" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                            <DatePicker SelectedDate="{Binding FechaSeleccionada}" Width="150" Margin="0,0,20,0" CalendarStyle="{StaticResource CalendarOscuroStyle}"/>
+                        </StackPanel>
+
+                        <!-- Modo por rango -->
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center"
+                                    Visibility="{Binding EsModoRango, Converter={StaticResource BoolToVisibleConverter}}">
+                            <TextBlock Text="Desde" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                            <DatePicker SelectedDate="{Binding DesdeRango}" Width="150" Margin="0,0,20,0" CalendarStyle="{StaticResource CalendarOscuroStyle}"/>
+                            <TextBlock Text="Hasta" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                            <DatePicker SelectedDate="{Binding HastaRango}" Width="150" Margin="0,0,20,0" CalendarStyle="{StaticResource CalendarOscuroStyle}"/>
+                        </StackPanel>
+
+                        <Button Content="Hoy" Style="{StaticResource BotonAccion}" Command="{Binding HoyCommand}"/>
+                        <Button Content="Ayer" Style="{StaticResource BotonAccion}" Command="{Binding AyerCommand}"/>
+                        <Button Content="Últimos 7 días" Style="{StaticResource BotonAccion}" Command="{Binding Ultimos7DiasCommand}"/>
+                        <Button Content="Últimos 30 días" Style="{StaticResource BotonAccion}" Command="{Binding Ultimos30DiasCommand}"/>
+                        <Button Content="Este mes" Style="{StaticResource BotonAccion}" Command="{Binding EsteMesCommand}"/>
+                        <Button Content="Mes anterior" Style="{StaticResource BotonAccion}" Command="{Binding MesAnteriorCommand}"/>
+                        <Button Content="🔄 Actualizar" Style="{StaticResource BotonAccion}" Command="{Binding ActualizarCommand}"/>
+                    </StackPanel>
+
+                    <TextBlock Text="{Binding TextoPeriodo}" FontSize="18" FontWeight="Bold"/>
+                </StackPanel>
+            </Border>
+
+            <!-- ===================== TARJETAS PRINCIPALES ===================== -->
+            <UniformGrid Columns="5" Rows="1">
+                <Border Style="{StaticResource Tarjeta}">
+                    <StackPanel>
+                        <TextBlock Text="VENDIDO EN EL PERÍODO" Style="{StaticResource TarjetaTitulo}"/>
+                        <TextBlock Text="{Binding TotalVendido, StringFormat='$ {0:N0}'}" Style="{StaticResource TarjetaValor}"/>
+                    </StackPanel>
+                </Border>
+                <Border Style="{StaticResource Tarjeta}">
+                    <StackPanel>
+                        <TextBlock Text="PEDIDOS" Style="{StaticResource TarjetaTitulo}"/>
+                        <TextBlock Text="{Binding CantidadPedidos}" Style="{StaticResource TarjetaValor}"/>
+                    </StackPanel>
+                </Border>
+                <Border Style="{StaticResource Tarjeta}">
+                    <StackPanel>
+                        <TextBlock Text="TICKET PROMEDIO" Style="{StaticResource TarjetaTitulo}"/>
+                        <TextBlock Text="{Binding TicketPromedio, StringFormat='$ {0:N0}'}" Style="{StaticResource TarjetaValor}"/>
+                    </StackPanel>
+                </Border>
+                <Border Style="{StaticResource Tarjeta}">
+                    <StackPanel>
+                        <TextBlock Text="EFECTIVO" Style="{StaticResource TarjetaTitulo}"/>
+                        <TextBlock Text="{Binding TotalEfectivo, StringFormat='$ {0:N0}'}" Style="{StaticResource TarjetaValor}"/>
+                    </StackPanel>
+                </Border>
+                <Border Style="{StaticResource Tarjeta}">
+                    <StackPanel>
+                        <TextBlock Text="TRANSFERENCIA" Style="{StaticResource TarjetaTitulo}"/>
+                        <TextBlock Text="{Binding TotalTransferencia, StringFormat='$ {0:N0}'}" Style="{StaticResource TarjetaValor}"/>
+                    </StackPanel>
+                </Border>
+            </UniformGrid>
+
+            <!-- ===================== DATOS DESTACADOS ===================== -->
+            <UniformGrid Columns="4" Rows="1">
+                <Border Style="{StaticResource Tarjeta}">
+                    <StackPanel>
+                        <TextBlock Text="PRODUCTO MÁS VENDIDO" Style="{StaticResource TarjetaTitulo}"/>
+                        <TextBlock Text="{Binding ProductoMasVendido}" FontSize="19" FontWeight="Bold" Margin="0,4,0,0" TextWrapping="Wrap"/>
+                    </StackPanel>
+                </Border>
+                <Border Style="{StaticResource Tarjeta}">
+                    <StackPanel>
+                        <TextBlock Text="HORA PICO" Style="{StaticResource TarjetaTitulo}"/>
+                        <TextBlock Text="{Binding HoraPico}" FontSize="19" FontWeight="Bold" Margin="0,4,0,0"/>
+                    </StackPanel>
+                </Border>
+                <Border Style="{StaticResource Tarjeta}">
+                    <StackPanel>
+                        <TextBlock Text="MEJOR DÍA DEL PERÍODO" Style="{StaticResource TarjetaTitulo}"/>
+                        <TextBlock Text="{Binding MejorDia}" FontSize="19" FontWeight="Bold" Margin="0,4,0,0"/>
+                    </StackPanel>
+                </Border>
+                <Border Style="{StaticResource Tarjeta}">
+                    <StackPanel>
+                        <TextBlock Text="VARIACIÓN" Style="{StaticResource TarjetaTitulo}"/>
+                        <TextBlock Text="{Binding VariacionTexto}" FontSize="19" FontWeight="Bold" Margin="0,4,0,0" TextWrapping="Wrap"
+                                   Foreground="{Binding VariacionEsPositiva, Converter={StaticResource BoolAColorVariacionConverter}}"/>
+                    </StackPanel>
+                </Border>
+            </UniformGrid>
+
+            <!-- ===================== TOP PRODUCTOS + INGRESOS POR CATEGORÍA ===================== -->
+            <UniformGrid Columns="2" Rows="1">
+                <Border Style="{StaticResource Tarjeta}">
+                    <StackPanel>
+                        <TextBlock Text="PRODUCTOS MÁS VENDIDOS (unidades)" Style="{StaticResource TarjetaTitulo}" Margin="0,0,0,10"/>
+                        <ItemsControl ItemsSource="{Binding TopProductos}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid Margin="0,0,0,10">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="140"/>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="40"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Grid.Column="0" Text="{Binding Etiqueta}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
+                                        <Border Grid.Column="1" Height="18" Background="{StaticResource BrushPanelClaro}" CornerRadius="4" VerticalAlignment="Center">
+                                            <Border HorizontalAlignment="Left" Height="18" Background="{StaticResource BrushRojo}" CornerRadius="4">
+                                                <Border.Width>
+                                                    <MultiBinding Converter="{StaticResource CantidadAAnchoConverter}" ConverterParameter="240">
+                                                        <Binding Path="Cantidad"/>
+                                                        <Binding Path="DataContext.MaxTopProductos" RelativeSource="{RelativeSource AncestorType=UserControl}"/>
+                                                    </MultiBinding>
+                                                </Border.Width>
+                                            </Border>
+                                        </Border>
+                                        <TextBlock Grid.Column="2" Text="{Binding Cantidad}" VerticalAlignment="Center" HorizontalAlignment="Right" FontWeight="Bold"/>
+                                    </Grid>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
+                </Border>
+
+                <Border Style="{StaticResource Tarjeta}">
+                    <StackPanel>
+                        <TextBlock Text="INGRESOS POR CATEGORÍA" Style="{StaticResource TarjetaTitulo}" Margin="0,0,0,10"/>
+                        <ItemsControl ItemsSource="{Binding IngresosPorCategoria}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid Margin="0,0,0,10">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="140"/>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="80"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Grid.Column="0" Text="{Binding Etiqueta}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
+                                        <Border Grid.Column="1" Height="18" Background="{StaticResource BrushPanelClaro}" CornerRadius="4" VerticalAlignment="Center">
+                                            <Border HorizontalAlignment="Left" Height="18" Background="{StaticResource BrushAmarillo}" CornerRadius="4">
+                                                <Border.Width>
+                                                    <MultiBinding Converter="{StaticResource MontoAAnchoConverter}" ConverterParameter="220">
+                                                        <Binding Path="Monto"/>
+                                                        <Binding Path="DataContext.MaxIngresoCategoria" RelativeSource="{RelativeSource AncestorType=UserControl}"/>
+                                                    </MultiBinding>
+                                                </Border.Width>
+                                            </Border>
+                                        </Border>
+                                        <TextBlock Grid.Column="2" Text="{Binding Monto, StringFormat='$ {0:N0}'}" VerticalAlignment="Center" HorizontalAlignment="Right" FontWeight="Bold"/>
+                                    </Grid>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
+                </Border>
+            </UniformGrid>
+
+            <!-- ===================== TENDENCIA DE VENTAS POR DÍA (solo rangos > 1 día) ===================== -->
+            <Border Style="{StaticResource Tarjeta}"
+                    Visibility="{Binding MostrarVentasPorDia, Converter={StaticResource BoolToVisibleConverter}}">
+                <StackPanel>
+                    <TextBlock Text="TENDENCIA DE VENTAS EN EL PERÍODO" Style="{StaticResource TarjetaTitulo}" Margin="0,0,0,10"/>
+                    <ItemsControl ItemsSource="{Binding VentasPorDia}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Grid Margin="0,0,0,10">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="90"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="90"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="{Binding Fecha, StringFormat='dd/MM'}" VerticalAlignment="Center"/>
+                                    <Border Grid.Column="1" Height="18" Background="{StaticResource BrushPanelClaro}" CornerRadius="4" VerticalAlignment="Center">
+                                        <Border HorizontalAlignment="Left" Height="18" Background="{StaticResource BrushVerde}" CornerRadius="4">
+                                            <Border.Width>
+                                                <MultiBinding Converter="{StaticResource MontoAAnchoConverter}" ConverterParameter="480">
+                                                    <Binding Path="Total"/>
+                                                    <Binding Path="DataContext.MaxVentaDiaria" RelativeSource="{RelativeSource AncestorType=UserControl}"/>
+                                                </MultiBinding>
+                                            </Border.Width>
+                                        </Border>
+                                    </Border>
+                                    <TextBlock Grid.Column="2" Text="{Binding Total, StringFormat='$ {0:N0}'}" VerticalAlignment="Center" HorizontalAlignment="Right" FontWeight="Bold"/>
+                                </Grid>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+            </Border>
+
+            <!-- ===================== VENTAS POR HORA + VENTAS POR DÍA DE SEMANA ===================== -->
+            <UniformGrid Columns="2" Rows="1">
+                <Border Style="{StaticResource Tarjeta}">
+                    <StackPanel>
+                        <TextBlock Text="VENTAS POR HORA" Style="{StaticResource TarjetaTitulo}" Margin="0,0,0,10"/>
+                        <ItemsControl ItemsSource="{Binding VentasPorHora}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid Margin="0,0,0,10">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="70"/>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="40"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Grid.Column="0" Text="{Binding Etiqueta}" VerticalAlignment="Center"/>
+                                        <Border Grid.Column="1" Height="18" Background="{StaticResource BrushPanelClaro}" CornerRadius="4" VerticalAlignment="Center">
+                                            <Border HorizontalAlignment="Left" Height="18" Background="{StaticResource BrushVerde}" CornerRadius="4">
+                                                <Border.Width>
+                                                    <MultiBinding Converter="{StaticResource CantidadAAnchoConverter}" ConverterParameter="220">
+                                                        <Binding Path="Cantidad"/>
+                                                        <Binding Path="DataContext.MaxPorHora" RelativeSource="{RelativeSource AncestorType=UserControl}"/>
+                                                    </MultiBinding>
+                                                </Border.Width>
+                                            </Border>
+                                        </Border>
+                                        <TextBlock Grid.Column="2" Text="{Binding Cantidad}" VerticalAlignment="Center" HorizontalAlignment="Right" FontWeight="Bold"/>
+                                    </Grid>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
+                </Border>
+
+                <Border Style="{StaticResource Tarjeta}"
+                        Visibility="{Binding MostrarPorDiaSemana, Converter={StaticResource BoolToVisibleConverter}}">
+                    <StackPanel>
+                        <TextBlock Text="VENTAS POR DÍA DE LA SEMANA" Style="{StaticResource TarjetaTitulo}" Margin="0,0,0,10"/>
+                        <ItemsControl ItemsSource="{Binding VentasPorDiaSemana}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid Margin="0,0,0,10">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="100"/>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="80"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Grid.Column="0" Text="{Binding Etiqueta}" VerticalAlignment="Center"/>
+                                        <Border Grid.Column="1" Height="18" Background="{StaticResource BrushPanelClaro}" CornerRadius="4" VerticalAlignment="Center">
+                                            <Border HorizontalAlignment="Left" Height="18" Background="{StaticResource BrushAmarillo}" CornerRadius="4">
+                                                <Border.Width>
+                                                    <MultiBinding Converter="{StaticResource MontoAAnchoConverter}" ConverterParameter="190">
+                                                        <Binding Path="Monto"/>
+                                                        <Binding Path="DataContext.MaxDiaSemana" RelativeSource="{RelativeSource AncestorType=UserControl}"/>
+                                                    </MultiBinding>
+                                                </Border.Width>
+                                            </Border>
+                                        </Border>
+                                        <TextBlock Grid.Column="2" Text="{Binding Monto, StringFormat='$ {0:N0}'}" VerticalAlignment="Center" HorizontalAlignment="Right" FontWeight="Bold"/>
+                                    </Grid>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
+                </Border>
+            </UniformGrid>
+
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>
