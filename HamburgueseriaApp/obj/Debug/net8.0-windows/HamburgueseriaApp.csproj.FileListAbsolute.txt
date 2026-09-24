@@ -139,3 +139,6 @@ D:\Proyectos\HamburgueseriaApp\HamburgueseriaApp\obj\Debug\net8.0-windows\refint
 D:\Proyectos\HamburgueseriaApp\HamburgueseriaApp\obj\Debug\net8.0-windows\HamburgueseriaApp.pdb
 D:\Proyectos\HamburgueseriaApp\HamburgueseriaApp\obj\Debug\net8.0-windows\HamburgueseriaApp.genruntimeconfig.cache
 D:\Proyectos\HamburgueseriaApp\HamburgueseriaApp\obj\Debug\net8.0-windows\ref\HamburgueseriaApp.dll
+D:\Proyectos\HamburgueseriaApp\HamburgueseriaApp\bin\Debug\net8.0-windows\Wpf.Ui.dll
+D:\Proyectos\HamburgueseriaApp\HamburgueseriaApp\bin\Debug\net8.0-windows\Wpf.Ui.Abstractions.dll
+D:\Proyectos\HamburgueseriaApp\HamburgueseriaApp\obj\Debug\net8.0-windows\HamburgueseriaApp.sourcelink.json

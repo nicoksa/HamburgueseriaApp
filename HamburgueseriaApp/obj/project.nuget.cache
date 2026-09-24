@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "E4XUycSzvg4=",
+  "dgSpecHash": "CV828LhtXVY=",
   "success": true,
   "projectFilePath": "D:\\Proyectos\\HamburgueseriaApp\\HamburgueseriaApp\\HamburgueseriaApp.csproj",
   "expectedPackageFiles": [
@@ -51,7 +51,9 @@
     "C:\\Users\\Usuario\\.nuget\\packages\\system.text.encoding.codepages\\8.0.0\\system.text.encoding.codepages.8.0.0.nupkg.sha512",
     "C:\\Users\\Usuario\\.nuget\\packages\\system.text.encodings.web\\8.0.0\\system.text.encodings.web.8.0.0.nupkg.sha512",
     "C:\\Users\\Usuario\\.nuget\\packages\\system.text.json\\8.0.4\\system.text.json.8.0.4.nupkg.sha512",
-    "C:\\Users\\Usuario\\.nuget\\packages\\system.threading.channels\\6.0.0\\system.threading.channels.6.0.0.nupkg.sha512"
+    "C:\\Users\\Usuario\\.nuget\\packages\\system.threading.channels\\6.0.0\\system.threading.channels.6.0.0.nupkg.sha512",
+    "C:\\Users\\Usuario\\.nuget\\packages\\wpf-ui\\4.3.0\\wpf-ui.4.3.0.nupkg.sha512",
+    "C:\\Users\\Usuario\\.nuget\\packages\\wpf-ui.abstractions\\4.3.0\\wpf-ui.abstractions.4.3.0.nupkg.sha512"
   ],
   "logs": []
 }

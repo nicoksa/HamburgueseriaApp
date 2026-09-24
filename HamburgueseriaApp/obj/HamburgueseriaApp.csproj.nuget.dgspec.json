@@ -67,6 +67,10 @@
             "System.Text.Encoding.CodePages": {
               "target": "Package",
               "version": "[8.0.0, )"
+            },
+            "WPF-UI": {
+              "target": "Package",
+              "version": "[4.3.0, )"
             }
           },
           "imports": [

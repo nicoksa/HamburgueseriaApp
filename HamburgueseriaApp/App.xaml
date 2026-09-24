@@ -2,9 +2,18 @@
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:helpers="clr-namespace:HamburgueseriaApp.Helpers"
+             xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
              StartupUri="Views/MainWindow.xaml">
     <Application.Resources>
         <ResourceDictionary>
+
+            <ResourceDictionary.MergedDictionaries>
+
+                <ui:ThemesDictionary Theme="Dark"/>
+                <ui:ControlsDictionary/>
+
+            </ResourceDictionary.MergedDictionaries>
+
 
             <!-- ===================== CONVERTERS ===================== -->
             <helpers:BoolToCollapsedConverter x:Key="BoolToCollapsedConverter"/>

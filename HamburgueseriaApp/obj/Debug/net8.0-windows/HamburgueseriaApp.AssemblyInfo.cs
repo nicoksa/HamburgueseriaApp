@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("HamburgueseriaApp")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+2fa9916ac719f8065658bdc33e3cdb3c055a72bb")]
 [assembly: System.Reflection.AssemblyProductAttribute("HamburgueseriaApp")]
 [assembly: System.Reflection.AssemblyTitleAttribute("HamburgueseriaApp")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
