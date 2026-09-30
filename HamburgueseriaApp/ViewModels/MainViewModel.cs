@@ -1,5 +1,8 @@
-using System.Windows.Input;
+using HamburgueseriaApp.Data;
 using HamburgueseriaApp.Helpers;
+using System.Windows;
+using System.Windows.Input;
+using System.IO;
 
 namespace HamburgueseriaApp.ViewModels;
 
@@ -9,6 +12,7 @@ public class MainViewModel : ObservableObject
     public ProductosViewModel ProductosVM { get; } = new();
     public VentasViewModel VentasVM { get; } = new();
     public EstadisticasViewModel EstadisticasVM { get; } = new();
+    public ICommand BackupCommand { get; }
 
     private object _vistaActual;
     public object VistaActual
@@ -60,5 +64,34 @@ public class MainViewModel : ObservableObject
             VistaActual = EstadisticasVM;
             TituloActual = "Estadísticas";
         });
+
+        BackupCommand = new RelayCommand(_ => HacerBackup());
     }
+
+
+    private void HacerBackup()
+    {
+        var dialogo = new Microsoft.Win32.SaveFileDialog
+        {
+            FileName = $"bigburger_backup_{DateTime.Now:yyyyMMdd_HHmm}.db",
+            Filter = "Base de datos (*.db)|*.db",
+            Title = "Guardar backup de la base de datos"
+        };
+
+        if (dialogo.ShowDialog() != true)
+            return;
+
+        try
+        {
+            File.Copy(AppDbContext.DbPath, dialogo.FileName, overwrite: true);
+            MessageBox.Show("Backup guardado correctamente.", "Listo",
+                MessageBoxButton.OK, MessageBoxImage.Information);
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show("No se pudo hacer el backup: " + ex.Message, "Error",
+                MessageBoxButton.OK, MessageBoxImage.Error);
+        }
+    }
+
 }

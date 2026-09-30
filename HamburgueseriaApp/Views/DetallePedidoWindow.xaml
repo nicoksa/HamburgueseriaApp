@@ -15,7 +15,9 @@
 
         <TextBlock Grid.Row="0" Text="{Binding NumeroPedido, StringFormat='Pedido Nº {0}'}" FontSize="22" FontWeight="Bold"/>
         <TextBlock Grid.Row="1" Text="{Binding Fecha, StringFormat='dd/MM/yyyy HH:mm'}"
-                   Foreground="{StaticResource BrushTextoSecundario}" Margin="0,4,0,14"/>
+           Foreground="{StaticResource BrushTextoSecundario}" Margin="0,4,0,4"/>
+        <TextBlock x:Name="TxtCliente" Grid.Row="1" Text="{Binding NombreCliente, StringFormat='Cliente: {0}'}"
+           FontWeight="SemiBold" Margin="0,26,0,14"/>
 
         <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto">
             <ItemsControl ItemsSource="{Binding Items}">

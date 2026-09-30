@@ -94,6 +94,14 @@
                                    FontSize="17" FontWeight="SemiBold"
                                    Padding="16,16" Margin="8,4"
                                    Command="{Binding IrAEstadisticasCommand}"/>
+                        <ui:Button Content="Backup"
+                                   Icon="{ui:SymbolIcon ArrowDownload24}"
+                                   Appearance="Transparent"
+                                   HorizontalAlignment="Stretch"
+                                   HorizontalContentAlignment="Left"
+                                   FontSize="17" FontWeight="SemiBold"
+                                   Padding="16,16" Margin="8,4"
+                                   Command="{Binding BackupCommand}"/>
                     </StackPanel>
                 </DockPanel>
             </Border>

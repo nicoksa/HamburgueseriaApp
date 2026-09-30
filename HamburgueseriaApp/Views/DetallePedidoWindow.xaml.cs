@@ -12,6 +12,9 @@ public partial class DetallePedidoWindow : Window
 
         if (string.IsNullOrWhiteSpace(pedido.Observaciones))
             PanelObservaciones.Visibility = Visibility.Collapsed;
+
+        if (string.IsNullOrWhiteSpace(pedido.NombreCliente))
+            TxtCliente.Visibility = Visibility.Collapsed;
     }
 
     private void Cerrar_Click(object sender, RoutedEventArgs e) => Close();

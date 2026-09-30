@@ -13,6 +13,16 @@ public partial class ProductoEditWindow : Window
         InitializeComponent();
         Producto = producto;
 
+        CmbTipo.PreviewMouseLeftButtonDown += (s, e) =>
+        {
+            if (CmbTipo.IsDropDownOpen)
+                return;
+
+            CmbTipo.IsDropDownOpen = true;
+            e.Handled = true;
+        };
+
+
         CmbTipo.ItemsSource = Enum.GetValues(typeof(TipoProducto));
         Title = producto.Id == 0 ? "Nuevo producto" : "Editar producto";
 

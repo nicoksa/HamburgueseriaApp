@@ -38,6 +38,7 @@ public class AppDbContext : DbContext
         modelBuilder.Entity<Pedido>(e =>
         {
             e.Property(p => p.FormaPago).HasConversion<string>();
+            e.Property(p => p.NombreCliente).HasMaxLength(60);
             e.HasMany(p => p.Items)
              .WithOne()
              .HasForeignKey(i => i.PedidoId)

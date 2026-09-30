@@ -46,6 +46,8 @@ public class ServicioImpresion
         Texto("BIG BURGER\n");
         Cmd(ESC, (byte)'!', 0x00);       // normal
         Texto($"Pedido Nº {pedido.NumeroPedido}\n");
+        if (!string.IsNullOrWhiteSpace(pedido.NombreCliente))
+            Texto($"Cliente: {pedido.NombreCliente}\n");
         Texto($"{pedido.Fecha:dd/MM/yyyy HH:mm}\n");
         Linea();
 
@@ -91,6 +93,8 @@ public class ServicioImpresion
         Cmd(ESC, (byte)'!', 0x00);
         Cmd(ESC, (byte)'E', 1);          // negrita ON
         Texto($"PEDIDO {pedido.NumeroPedido}\n");
+        if (!string.IsNullOrWhiteSpace(pedido.NombreCliente))
+            Texto($"{pedido.NombreCliente.ToUpperInvariant()}\n");
         Cmd(ESC, (byte)'E', 0);          // negrita OFF
         Texto($"{pedido.Fecha:HH:mm}\n");
         Linea();

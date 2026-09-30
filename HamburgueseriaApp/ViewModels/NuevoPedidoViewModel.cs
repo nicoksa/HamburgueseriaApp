@@ -39,6 +39,13 @@ public class NuevoPedidoViewModel : ObservableObject
         set => SetProperty(ref _formaPagoSeleccionada, value);
     }
 
+    private string? _nombreCliente;
+    public string? NombreCliente
+    {
+        get => _nombreCliente;
+        set => SetProperty(ref _nombreCliente, value);
+    }
+
     public bool HayItems => Items.Count > 0;
 
     public ICommand AgregarProductoCommand { get; }
@@ -128,6 +135,7 @@ public class NuevoPedidoViewModel : ObservableObject
                 Total = Total,
                 FormaPago = FormaPagoSeleccionada,
                 Observaciones = Observaciones,
+                NombreCliente = string.IsNullOrWhiteSpace(NombreCliente) ? null : NombreCliente.Trim(),
                 Items = Items.Select(i => new PedidoItem
                 {
                     ProductoId = i.ProductoId,
@@ -164,6 +172,7 @@ public class NuevoPedidoViewModel : ObservableObject
     {
         Items.Clear();
         Observaciones = string.Empty;
+        NombreCliente = string.Empty;
         FormaPagoSeleccionada = FormaPago.Efectivo;
         RecalcularTotal();
     }

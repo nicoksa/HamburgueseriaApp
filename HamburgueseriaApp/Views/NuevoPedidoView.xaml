@@ -149,16 +149,26 @@
                            VerticalAlignment="Top" Margin="0,20,0,0"
                            Visibility="{Binding HayItems, Converter={StaticResource BoolToCollapsedConverter}}"/>
 
-                <!-- Observaciones -->
+                <!-- Nombre del cliente -->
                 <StackPanel Grid.Row="2" Margin="0,10,0,10">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="Nombre del cliente" Foreground="{StaticResource BrushTextoSecundario}" Margin="0,0,4,4"/>
+                       
+                    </StackPanel>
+                    <TextBox Text="{Binding NombreCliente, UpdateSourceTrigger=PropertyChanged}" FontSize="16"/>
+                </StackPanel>
+
+                <!-- Observaciones -->
+                <StackPanel Grid.Row="3" Margin="0,0,0,10">
                     <TextBlock Text="Observaciones" Foreground="{StaticResource BrushTextoSecundario}" Margin="0,0,0,4"/>
                     <TextBox Text="{Binding Observaciones, UpdateSourceTrigger=PropertyChanged}"
                              AcceptsReturn="True" TextWrapping="Wrap" Height="70"
                              VerticalScrollBarVisibility="Auto"/>
                 </StackPanel>
 
+
                 <!-- Forma de pago -->
-                <StackPanel Grid.Row="3" Orientation="Horizontal" Margin="0,0,0,10" HorizontalAlignment="Stretch">
+                <StackPanel Grid.Row="4" Orientation="Horizontal" Margin="0,0,0,10" HorizontalAlignment="Stretch">
                     <RadioButton Content="EFECTIVO" GroupName="FormaPago" FontSize="16" Margin="0,0,20,0"
                                  IsChecked="{Binding FormaPagoSeleccionada, Converter={StaticResource EnumToBoolConverter}, ConverterParameter=Efectivo}"/>
                     <RadioButton Content="TRANSFERENCIA" GroupName="FormaPago" FontSize="16"
@@ -166,7 +176,7 @@
                 </StackPanel>
 
                 <!-- Total -->
-                <Border Grid.Row="4" Background="{StaticResource BrushPanelClaro}" CornerRadius="8" Padding="14,10" Margin="0,0,0,12">
+                <Border Grid.Row="5" Background="{StaticResource BrushPanelClaro}" CornerRadius="8" Padding="14,10" Margin="0,0,0,12">
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
@@ -179,7 +189,7 @@
                 </Border>
 
                 <!-- Botón cobrar -->
-                <Button Grid.Row="5" Content="COBRAR E IMPRIMIR" Style="{StaticResource BotonCobrar}"
+                <Button Grid.Row="6" Content="COBRAR E IMPRIMIR" Style="{StaticResource BotonCobrar}"
                         Command="{Binding CobrarEImprimirCommand}"/>
             </Grid>
         </Border>

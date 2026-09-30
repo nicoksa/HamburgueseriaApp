@@ -12,5 +12,7 @@ public class Pedido
     public FormaPago FormaPago { get; set; }
     public string? Observaciones { get; set; }
 
+    public string? NombreCliente { get; set; }
+
     public List<PedidoItem> Items { get; set; } = new();
 }
