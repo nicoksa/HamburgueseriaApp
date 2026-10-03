@@ -49,6 +49,9 @@ public class ServicioImpresion
         if (!string.IsNullOrWhiteSpace(pedido.NombreCliente))
             Texto($"Cliente: {pedido.NombreCliente}\n");
         Texto($"{pedido.Fecha:dd/MM/yyyy HH:mm}\n");
+        Texto(pedido.TipoPedido == TipoPedido.Envio ? "ENVÍO\n" : "RETIRO\n");
+        if (pedido.TipoPedido == TipoPedido.Envio && !string.IsNullOrWhiteSpace(pedido.Direccion))
+            Texto($"Dir: {pedido.Direccion}\n");
         Linea();
 
         Cmd(ESC, (byte)'a', 0);          // izquierda

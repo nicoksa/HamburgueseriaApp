@@ -61,7 +61,10 @@ public class ProductosViewModel : ObservableObject
             Nombre = Seleccionado.Nombre,
             Precio = Seleccionado.Precio,
             Tipo = Seleccionado.Tipo,
-            Activo = Seleccionado.Activo
+            Activo = Seleccionado.Activo,
+            PrecioDoble = Seleccionado.PrecioDoble,
+            PrecioTriple = Seleccionado.PrecioTriple,
+            PrecioCuadruple = Seleccionado.PrecioCuadruple
         };
 
         var dialogo = new ProductoEditWindow(copia);

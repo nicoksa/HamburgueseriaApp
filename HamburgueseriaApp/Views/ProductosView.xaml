@@ -17,7 +17,7 @@
         <DataGrid Grid.Row="1" ItemsSource="{Binding Productos}" SelectedItem="{Binding Seleccionado}">
             <DataGrid.Columns>
                 <DataGridTextColumn Header="Nombre" Binding="{Binding Nombre}" Width="2*"/>
-                <DataGridTextColumn Header="Precio" Binding="{Binding Precio, StringFormat='$ {0:N0}'}" Width="*"/>
+                <DataGridTextColumn Header="Precio (desde)" Binding="{Binding PrecioDesde, StringFormat='$ {0:N0}'}" Width="*"/>
                 <DataGridTextColumn Header="Tipo" Binding="{Binding Tipo}" Width="*"/>
                 <DataGridCheckBoxColumn Header="Activo" Binding="{Binding Activo}" Width="*"/>
             </DataGrid.Columns>

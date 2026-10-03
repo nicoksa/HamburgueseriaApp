@@ -5,5 +5,8 @@
     <Compile Update="Views\DetallePedidoWindow.xaml.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Update="Views\SeleccionVarianteWindow.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
   </ItemGroup>
 </Project>

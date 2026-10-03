@@ -23,11 +23,11 @@ public class PedidoItemViewModel : ObservableObject
 
     public decimal Subtotal => PrecioUnitario * Cantidad;
 
-    public PedidoItemViewModel(Producto producto)
+    public PedidoItemViewModel(Producto producto, string? nombre = null, decimal? precio = null)
     {
         ProductoId = producto.Id;
-        Nombre = producto.Nombre;
-        PrecioUnitario = producto.Precio;
+        Nombre = nombre ?? producto.Nombre;
+        PrecioUnitario = precio ?? producto.Precio;
         _cantidad = 1;
     }
 }

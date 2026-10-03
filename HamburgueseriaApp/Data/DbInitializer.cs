@@ -1,4 +1,6 @@
 using HamburgueseriaApp.Models;
+using Microsoft.EntityFrameworkCore;
+using System.Data;
 
 namespace HamburgueseriaApp.Data;
 
@@ -11,6 +13,7 @@ public static class DbInitializer
     {
         // Crea el archivo .db y el esquema si todavía no existen.
         contexto.Database.EnsureCreated();
+        MigrarEsquema(contexto);
 
         if (contexto.Productos.Any())
             return;
@@ -36,5 +39,38 @@ public static class DbInitializer
 
         contexto.Productos.AddRange(productos);
         contexto.SaveChanges();
+    }
+
+
+    /// <summary>EnsureCreated no modifica tablas existentes, así que agregamos a mano las columnas nuevas.</summary>
+    private static void MigrarEsquema(AppDbContext ctx)
+    {
+        AgregarColumnaSiFalta(ctx, "Pedidos", "TipoPedido", "TEXT NOT NULL DEFAULT 'Retiro'");
+        AgregarColumnaSiFalta(ctx, "Pedidos", "Direccion", "TEXT NULL");
+        AgregarColumnaSiFalta(ctx, "Productos", "PrecioDoble", "TEXT NULL");
+        AgregarColumnaSiFalta(ctx, "Productos", "PrecioTriple", "TEXT NULL");
+        AgregarColumnaSiFalta(ctx, "Productos", "PrecioCuadruple", "TEXT NULL");
+    }
+
+    private static void AgregarColumnaSiFalta(AppDbContext ctx, string tabla, string columna, string definicion)
+    {
+        var conn = ctx.Database.GetDbConnection();
+        bool abrir = conn.State != ConnectionState.Open;
+        if (abrir) conn.Open();
+        try
+        {
+            using var cmd = conn.CreateCommand();
+            cmd.CommandText = $"PRAGMA table_info('{tabla}')";
+            using var r = cmd.ExecuteReader();
+            while (r.Read())
+                if (string.Equals(r.GetString(1), columna, StringComparison.OrdinalIgnoreCase))
+                    return; // ya existe
+        }
+        finally
+        {
+            if (abrir) conn.Close();
+        }
+
+        ctx.Database.ExecuteSqlRaw($"ALTER TABLE {tabla} ADD COLUMN {columna} {definicion}");
     }
 }

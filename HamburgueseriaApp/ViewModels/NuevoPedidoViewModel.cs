@@ -59,9 +59,30 @@ public class NuevoPedidoViewModel : ObservableObject
     /// <summary>Se dispara con un mensaje de éxito luego de cobrar.</summary>
     public event Action<string>? PedidoConfirmado;
 
+    private TipoPedido _tipoPedidoSeleccionado = TipoPedido.Retiro;
+    public TipoPedido TipoPedidoSeleccionado
+    {
+        get => _tipoPedidoSeleccionado;
+        set { if (SetProperty(ref _tipoPedidoSeleccionado, value)) OnPropertyChanged(nameof(EsEnvio)); }
+    }
+
+    public bool EsEnvio => TipoPedidoSeleccionado == TipoPedido.Envio;
+
+    private string? _direccion;
+    public string? Direccion
+    {
+        get => _direccion;
+        set => SetProperty(ref _direccion, value);
+    }
+
+    /// <summary>La vista lo asigna para mostrar el diálogo de variantes. Devuelve null si se cancela.</summary>
+    public Func<Producto, VarianteProducto?>? SolicitarVariante { get; set; }
+
+
+
     public NuevoPedidoViewModel()
     {
-        AgregarProductoCommand = new RelayCommand(p => { if (p is Producto prod) AgregarProducto(prod); });
+        AgregarProductoCommand = new RelayCommand(p => { if (p is Producto prod) SeleccionarYAgregar(prod); });
         IncrementarCommand = new RelayCommand(p => { if (p is PedidoItemViewModel it) { it.Cantidad++; RecalcularTotal(); } });
         DecrementarCommand = new RelayCommand(p =>
         {
@@ -102,16 +123,44 @@ public class NuevoPedidoViewModel : ObservableObject
         }
     }
 
-    private void AgregarProducto(Producto producto)
+    private void SeleccionarYAgregar(Producto producto)
     {
-        var existente = Items.FirstOrDefault(i => i.ProductoId == producto.Id);
+        if (!producto.TieneVariantes)
+        {
+            AgregarProducto(producto, null);
+            return;
+        }
+
+        var variantes = producto.ObtenerVariantes();
+
+        // Una sola opción disponible: se agrega directo, sin preguntar.
+        if (variantes.Count == 1)
+        {
+            AgregarProducto(producto, variantes[0]);
+            return;
+        }
+
+        if (SolicitarVariante == null) return;
+        var elegida = SolicitarVariante(producto);
+        if (elegida != null)
+            AgregarProducto(producto, elegida);
+    }
+
+    private void AgregarProducto(Producto producto, VarianteProducto? variante)
+    {
+        // La versión simple conserva el nombre original ("Hércules"); las demás suman el sufijo ("Hércules Doble").
+        var nombre = variante is null || variante.EsSimple ? producto.Nombre : $"{producto.Nombre} {variante.Nombre}";
+        var precio = variante?.Precio ?? producto.Precio;
+
+        // Se agrupa por producto Y variante, así "Hércules" y "Hércules Doble" son renglones distintos.
+        var existente = Items.FirstOrDefault(i => i.ProductoId == producto.Id && i.Nombre == nombre);
         if (existente != null)
         {
             existente.Cantidad++;
         }
         else
         {
-            var vm = new PedidoItemViewModel(producto);
+            var vm = new PedidoItemViewModel(producto, nombre, precio);
             vm.PropertyChanged += (_, __) => RecalcularTotal();
             Items.Add(vm);
         }
@@ -136,6 +185,10 @@ public class NuevoPedidoViewModel : ObservableObject
                 FormaPago = FormaPagoSeleccionada,
                 Observaciones = Observaciones,
                 NombreCliente = string.IsNullOrWhiteSpace(NombreCliente) ? null : NombreCliente.Trim(),
+                TipoPedido = TipoPedidoSeleccionado,
+                Direccion = TipoPedidoSeleccionado == TipoPedido.Envio && !string.IsNullOrWhiteSpace(Direccion)
+                            ? Direccion.Trim()
+                            : null,
                 Items = Items.Select(i => new PedidoItem
                 {
                     ProductoId = i.ProductoId,
@@ -174,6 +227,8 @@ public class NuevoPedidoViewModel : ObservableObject
         Observaciones = string.Empty;
         NombreCliente = string.Empty;
         FormaPagoSeleccionada = FormaPago.Efectivo;
+        TipoPedidoSeleccionado = TipoPedido.Retiro;
+        Direccion = string.Empty;
         RecalcularTotal();
     }
 }

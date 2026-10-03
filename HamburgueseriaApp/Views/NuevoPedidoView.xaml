@@ -30,8 +30,11 @@
                                 <StackPanel>
                                     <TextBlock Text="{Binding Nombre}" FontSize="19" FontWeight="Bold"
                                                HorizontalAlignment="Center" TextWrapping="Wrap" TextAlignment="Center"/>
-                                    <TextBlock Text="{Binding Precio, StringFormat='$ {0:N0}'}" FontSize="15"
-                                               HorizontalAlignment="Center" Opacity="0.85" Margin="0,4,0,0"/>
+                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Opacity="0.85" Margin="0,4,0,0">
+                                        <TextBlock FontSize="15"
+                                                   Visibility="{Binding SinSimple, Converter={StaticResource BoolToVisibleConverter}}"/>
+                                        <TextBlock Text="{Binding PrecioDesde, StringFormat='$ {0:N0}'}" FontSize="15"/>
+                                    </StackPanel>
                                 </StackPanel>
                             </Button>
                         </DataTemplate>
@@ -93,11 +96,21 @@
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
+                    <!-- 0 título -->
                     <RowDefinition Height="*"/>
+                    <!-- 1 items -->
                     <RowDefinition Height="Auto"/>
+                    <!-- 2 cliente -->
                     <RowDefinition Height="Auto"/>
+                    <!-- 3 tipo + dirección -->
                     <RowDefinition Height="Auto"/>
+                    <!-- 4 observaciones -->
                     <RowDefinition Height="Auto"/>
+                    <!-- 5 forma de pago -->
+                    <RowDefinition Height="Auto"/>
+                    <!-- 6 total -->
+                    <RowDefinition Height="Auto"/>
+                    <!-- 7 botón -->
                 </Grid.RowDefinitions>
 
                 <TextBlock Grid.Row="0" Text="PEDIDO ACTUAL" FontSize="18" FontWeight="Bold" Margin="0,0,0,10"/>
@@ -158,8 +171,22 @@
                     <TextBox Text="{Binding NombreCliente, UpdateSourceTrigger=PropertyChanged}" FontSize="16"/>
                 </StackPanel>
 
-                <!-- Observaciones -->
+                <!-- Tipo de pedido + dirección -->
                 <StackPanel Grid.Row="3" Margin="0,0,0,10">
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+                        <RadioButton Content="RETIRO" GroupName="TipoPedido" FontSize="16" Margin="0,0,20,0"
+                     IsChecked="{Binding TipoPedidoSeleccionado, Converter={StaticResource EnumToBoolConverter}, ConverterParameter=Retiro}"/>
+                        <RadioButton Content="ENVÍO" GroupName="TipoPedido" FontSize="16"
+                     IsChecked="{Binding TipoPedidoSeleccionado, Converter={StaticResource EnumToBoolConverter}, ConverterParameter=Envio}"/>
+                    </StackPanel>
+                    <StackPanel Visibility="{Binding EsEnvio, Converter={StaticResource BoolToVisibleConverter}}">
+                        <TextBlock Text="Dirección (opcional)" Foreground="{StaticResource BrushTextoSecundario}" Margin="0,0,0,4"/>
+                        <TextBox Text="{Binding Direccion, UpdateSourceTrigger=PropertyChanged}" FontSize="16"/>
+                    </StackPanel>
+                </StackPanel>
+
+                <!-- Observaciones -->
+                <StackPanel Grid.Row="4" Margin="0,0,0,10">
                     <TextBlock Text="Observaciones" Foreground="{StaticResource BrushTextoSecundario}" Margin="0,0,0,4"/>
                     <TextBox Text="{Binding Observaciones, UpdateSourceTrigger=PropertyChanged}"
                              AcceptsReturn="True" TextWrapping="Wrap" Height="70"
@@ -168,7 +195,7 @@
 
 
                 <!-- Forma de pago -->
-                <StackPanel Grid.Row="4" Orientation="Horizontal" Margin="0,0,0,10" HorizontalAlignment="Stretch">
+                <StackPanel Grid.Row="5" Orientation="Horizontal" Margin="0,0,0,10" HorizontalAlignment="Stretch">
                     <RadioButton Content="EFECTIVO" GroupName="FormaPago" FontSize="16" Margin="0,0,20,0"
                                  IsChecked="{Binding FormaPagoSeleccionada, Converter={StaticResource EnumToBoolConverter}, ConverterParameter=Efectivo}"/>
                     <RadioButton Content="TRANSFERENCIA" GroupName="FormaPago" FontSize="16"
@@ -176,7 +203,7 @@
                 </StackPanel>
 
                 <!-- Total -->
-                <Border Grid.Row="5" Background="{StaticResource BrushPanelClaro}" CornerRadius="8" Padding="14,10" Margin="0,0,0,12">
+                <Border Grid.Row="6" Background="{StaticResource BrushPanelClaro}" CornerRadius="8" Padding="14,10" Margin="0,0,0,12">
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
@@ -189,7 +216,7 @@
                 </Border>
 
                 <!-- Botón cobrar -->
-                <Button Grid.Row="6" Content="COBRAR E IMPRIMIR" Style="{StaticResource BotonCobrar}"
+                <Button Grid.Row="7" Content="COBRAR E IMPRIMIR" Style="{StaticResource BotonCobrar}"
                         Command="{Binding CobrarEImprimirCommand}"/>
             </Grid>
         </Border>

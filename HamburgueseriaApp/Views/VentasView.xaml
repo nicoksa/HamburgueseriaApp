@@ -28,6 +28,8 @@
                 <DataGridTextColumn Header="Fecha y hora" Binding="{Binding Fecha, StringFormat='dd/MM/yyyy HH:mm'}" Width="*"/>
                 <DataGridTextColumn Header="Total" Binding="{Binding Total, StringFormat='$ {0:N0}'}" Width="*"/>
                 <DataGridTextColumn Header="Forma de pago" Binding="{Binding FormaPago}" Width="*"/>
+                <DataGridTextColumn Header="Tipo" Binding="{Binding TipoPedido}" Width="Auto"/>
+                <DataGridTextColumn Header="Dirección" Binding="{Binding Direccion}" Width="*"/>
             </DataGrid.Columns>
         </DataGrid>
     </Grid>

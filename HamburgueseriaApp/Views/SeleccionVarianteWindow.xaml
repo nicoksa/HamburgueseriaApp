@@ -1,0 +1,25 @@
+﻿<Window x:Class="HamburgueseriaApp.Views.SeleccionVarianteWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Elegir variante" Width="360" SizeToContent="Height"
+        WindowStartupLocation="CenterOwner" ResizeMode="NoResize"
+        Background="{StaticResource BrushFondo}">
+    <StackPanel Margin="20">
+        <TextBlock x:Name="TxtProducto" FontSize="22" FontWeight="Bold" Margin="0,0,0,14"/>
+        <ItemsControl x:Name="ListaVariantes">
+            <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                    <Button Style="{StaticResource BotonGrande}" Tag="{Binding}" Click="Variante_Click">
+                        <StackPanel>
+                            <TextBlock Text="{Binding Nombre}" FontSize="19" FontWeight="Bold" HorizontalAlignment="Center"/>
+                            <TextBlock Text="{Binding Precio, StringFormat='$ {0:N0}'}" FontSize="15"
+                                       HorizontalAlignment="Center" Opacity="0.85" Margin="0,4,0,0"/>
+                        </StackPanel>
+                    </Button>
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+        </ItemsControl>
+        <Button Content="Cancelar" Style="{StaticResource BotonAccion}"
+                HorizontalAlignment="Right" Margin="0,10,0,0" Click="Cancelar_Click"/>
+    </StackPanel>
+</Window>

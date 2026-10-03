@@ -15,4 +15,9 @@ public class Pedido
     public string? NombreCliente { get; set; }
 
     public List<PedidoItem> Items { get; set; } = new();
+
+    public TipoPedido TipoPedido { get; set; } = TipoPedido.Retiro;
+
+    /// <summary>Opcional. Solo tiene sentido si TipoPedido es Envio.</summary>
+    public string? Direccion { get; set; }
 }
