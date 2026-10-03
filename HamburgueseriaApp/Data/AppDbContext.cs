@@ -50,6 +50,7 @@ public class AppDbContext : DbContext
         modelBuilder.Entity<PedidoItem>(e =>
         {
             e.Property(i => i.NombreProducto).IsRequired().HasMaxLength(80);
+            e.Property(i => i.Observaciones).HasMaxLength(120);
         });
     }
 }

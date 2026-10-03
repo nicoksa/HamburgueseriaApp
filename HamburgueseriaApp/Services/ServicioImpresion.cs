@@ -25,12 +25,14 @@ public class ServicioImpresion
                 "No se encontró ninguna impresora predeterminada en Windows. " +
                 "Configurá la impresora térmica como predeterminada e intentá de nuevo.");
 
-        RawPrinterHelper.EnviarBytes(impresora, ConstruirTicket(pedido));
-        RawPrinterHelper.EnviarBytes(impresora, ConstruirComanda(pedido));
+        // Ticket y comanda salen idénticos: se construye una sola vez y se envía dos veces.
+        var comprobante = ConstruirTicket(pedido);
+        RawPrinterHelper.EnviarBytes(impresora, comprobante); // copia del cliente
+        RawPrinterHelper.EnviarBytes(impresora, comprobante); // copia de cocina / entrega
     }
 
     // ---------------------------------------------------------------
-    // TICKET DEL CLIENTE
+    // TICKET (se imprime dos veces, igual)
     // ---------------------------------------------------------------
     private byte[] ConstruirTicket(Pedido pedido)
     {
@@ -41,71 +43,41 @@ public class ServicioImpresion
         void Linea() => Texto(new string('-', ANCHO_COLUMNAS) + "\n");
 
         Cmd(ESC, (byte)'@');            // reset impresora
-        Cmd(ESC, (byte)'a', 1);          // centrado
-        Cmd(ESC, (byte)'!', 0x30);       // doble ancho + doble alto
+        Cmd(ESC, (byte)'a', 1);         // centrado
+        Cmd(ESC, (byte)'!', 0x30);      // doble ancho + doble alto
         Texto("BIG BURGER\n");
-        Cmd(ESC, (byte)'!', 0x00);       // normal
+
+        Cmd(ESC, (byte)'!', 0x10);      // doble alto
         Texto($"Pedido Nº {pedido.NumeroPedido}\n");
         if (!string.IsNullOrWhiteSpace(pedido.NombreCliente))
-            Texto($"Cliente: {pedido.NombreCliente}\n");
+            Texto($"{pedido.NombreCliente}\n");
+        Cmd(ESC, (byte)'!', 0x00);      // normal
         Texto($"{pedido.Fecha:dd/MM/yyyy HH:mm}\n");
+        Cmd(ESC, (byte)'!', 0x10);
         Texto(pedido.TipoPedido == TipoPedido.Envio ? "ENVÍO\n" : "RETIRO\n");
+        Cmd(ESC, (byte)'!', 0x00);
         if (pedido.TipoPedido == TipoPedido.Envio && !string.IsNullOrWhiteSpace(pedido.Direccion))
-            Texto($"Dir: {pedido.Direccion}\n");
+            foreach (var l in Envolver("Dir: " + pedido.Direccion, ANCHO_COLUMNAS))
+                Texto($"{l}\n");
         Linea();
 
-        Cmd(ESC, (byte)'a', 0);          // izquierda
+        // Items en doble alto: se leen mejor y no se rompe el ancho de 32 columnas
+        Cmd(ESC, (byte)'a', 0);         // izquierda
         foreach (var item in pedido.Items)
-            Texto($"{item.Cantidad} {item.NombreProducto}\n");
-
-        if (!string.IsNullOrWhiteSpace(pedido.Observaciones))
         {
-            Linea();
-            Texto("Obs: " + pedido.Observaciones + "\n");
+            Cmd(ESC, (byte)'!', 0x10);
+            foreach (var l in Envolver($"{item.Cantidad} {item.NombreProducto}", ANCHO_COLUMNAS))
+                Texto($"{l}\n");
+
+            if (!string.IsNullOrWhiteSpace(item.Observaciones))
+            {
+                Cmd(ESC, (byte)'!', 0x00);
+                Cmd(ESC, (byte)'E', 1);  // negrita ON
+                foreach (var l in Envolver(item.Observaciones, ANCHO_COLUMNAS - 5))
+                    Texto($"  >> {l}\n");
+                Cmd(ESC, (byte)'E', 0);  // negrita OFF
+            }
         }
-
-        Linea();
-        Cmd(ESC, (byte)'a', 1);
-        Cmd(ESC, (byte)'!', 0x10);       // doble alto
-        Texto($"TOTAL ${pedido.Total:N0}\n");
-        Cmd(ESC, (byte)'!', 0x00);
-        Texto($"Forma de pago: {DescripcionFormaPago(pedido.FormaPago)}\n");
-        Texto("\n");
-        Texto("Gracias por su compra!\n");
-        Texto("\n\n\n");
-
-        Cmd(GS, (byte)'V', 1);           // corte de papel (parcial)
-        return ms.ToArray();
-    }
-
-    // ---------------------------------------------------------------
-    // COMANDA DE COCINA
-    // ---------------------------------------------------------------
-    private byte[] ConstruirComanda(Pedido pedido)
-    {
-        var enc = ObtenerEncoding();
-        using var ms = new MemoryStream();
-        void Texto(string s) { var b = enc.GetBytes(s); ms.Write(b, 0, b.Length); }
-        void Cmd(params byte[] b) => ms.Write(b, 0, b.Length);
-        void Linea() => Texto(new string('-', ANCHO_COLUMNAS) + "\n");
-
-        Cmd(ESC, (byte)'@');
-        Cmd(ESC, (byte)'a', 1);
-        Cmd(ESC, (byte)'!', 0x30);
-        Texto("COCINA\n");
-        Cmd(ESC, (byte)'!', 0x00);
-        Cmd(ESC, (byte)'E', 1);          // negrita ON
-        Texto($"PEDIDO {pedido.NumeroPedido}\n");
-        if (!string.IsNullOrWhiteSpace(pedido.NombreCliente))
-            Texto($"{pedido.NombreCliente.ToUpperInvariant()}\n");
-        Cmd(ESC, (byte)'E', 0);          // negrita OFF
-        Texto($"{pedido.Fecha:HH:mm}\n");
-        Linea();
-
-        Cmd(ESC, (byte)'a', 0);
-        Cmd(ESC, (byte)'!', 0x10);       // doble alto: se lee de lejos en cocina
-        foreach (var item in pedido.Items)
-            Texto($"{item.Cantidad} {item.NombreProducto.ToUpperInvariant()}\n");
         Cmd(ESC, (byte)'!', 0x00);
 
         if (!string.IsNullOrWhiteSpace(pedido.Observaciones))
@@ -114,11 +86,24 @@ public class ServicioImpresion
             Cmd(ESC, (byte)'E', 1);
             Texto("OBSERVACIONES\n");
             Cmd(ESC, (byte)'E', 0);
-            Texto(pedido.Observaciones + "\n");
+            Cmd(ESC, (byte)'!', 0x10);
+            foreach (var l in Envolver(pedido.Observaciones, ANCHO_COLUMNAS))
+                Texto($"{l}\n");
+            Cmd(ESC, (byte)'!', 0x00);
         }
 
+        Linea();
+        Cmd(ESC, (byte)'a', 1);
+        Cmd(ESC, (byte)'!', 0x30);      // total bien grande
+        Texto($"TOTAL ${pedido.Total:N0}\n");
+        Cmd(ESC, (byte)'!', 0x10);
+        Texto($"{DescripcionFormaPago(pedido.FormaPago)}\n");
+        Cmd(ESC, (byte)'!', 0x00);
+        Texto("\n");
+        Texto("Gracias por su compra!\n");
         Texto("\n\n\n");
-        Cmd(GS, (byte)'V', 1);
+
+        Cmd(GS, (byte)'V', 1);          // corte de papel (parcial)
         return ms.ToArray();
     }
 
@@ -135,4 +120,20 @@ public class ServicioImpresion
         FormaPago.Transferencia => "Transferencia",
         _ => formaPago.ToString()
     };
+
+    private static IEnumerable<string> Envolver(string texto, int ancho)
+    {
+        var linea = new StringBuilder();
+        foreach (var palabra in texto.Split(' ', StringSplitOptions.RemoveEmptyEntries))
+        {
+            if (linea.Length > 0 && linea.Length + 1 + palabra.Length > ancho)
+            {
+                yield return linea.ToString();
+                linea.Clear();
+            }
+            if (linea.Length > 0) linea.Append(' ');
+            linea.Append(palabra);
+        }
+        if (linea.Length > 0) yield return linea.ToString();
+    }
 }

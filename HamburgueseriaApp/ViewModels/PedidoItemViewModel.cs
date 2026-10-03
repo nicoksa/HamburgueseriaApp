@@ -9,6 +9,8 @@ public class PedidoItemViewModel : ObservableObject
     public string Nombre { get; }
     public decimal PrecioUnitario { get; }
 
+    public string? Variante { get; }
+
     private int _cantidad;
     public int Cantidad
     {
@@ -21,13 +23,30 @@ public class PedidoItemViewModel : ObservableObject
         }
     }
 
+    private string? _observaciones;
+    public string? Observaciones
+    {
+        get => _observaciones;
+        set
+        {
+            if (SetProperty(ref _observaciones, value))
+                OnPropertyChanged(nameof(TieneObservaciones));
+        }
+    }
+    public bool TieneObservaciones => !string.IsNullOrWhiteSpace(Observaciones);
+
     public decimal Subtotal => PrecioUnitario * Cantidad;
 
-    public PedidoItemViewModel(Producto producto, string? nombre = null, decimal? precio = null)
+    public PedidoItemViewModel(Producto producto, string? nombre = null, decimal? precio = null, string? variante = null)
+          : this(producto.Id, nombre ?? producto.Nombre, precio ?? producto.Precio, null, variante) { }
+
+    public PedidoItemViewModel(int productoId, string nombre, decimal precio, string? observaciones, string? variante = null)
     {
-        ProductoId = producto.Id;
-        Nombre = nombre ?? producto.Nombre;
-        PrecioUnitario = precio ?? producto.Precio;
+        ProductoId = productoId;
+        Nombre = nombre;
+        PrecioUnitario = precio;
+        Variante = variante;
+        _observaciones = observaciones;
         _cantidad = 1;
     }
 }

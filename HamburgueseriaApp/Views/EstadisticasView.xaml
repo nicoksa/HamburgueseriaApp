@@ -129,6 +129,34 @@
                 </Border>
             </UniformGrid>
 
+            <ItemsControl ItemsSource="{Binding TipoPedidoResumen}">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <UniformGrid Columns="2" Rows="1"/>
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Border Style="{StaticResource Tarjeta}">
+                            <StackPanel>
+                                <TextBlock Style="{StaticResource TarjetaTitulo}">
+                        <Run Text="{Binding Etiqueta, Mode=OneWay}"/>
+                        <Run Text=" · "/>
+                        <Run Text="{Binding Porcentaje, Mode=OneWay, StringFormat='{}{0:0}%'}"/>
+                        <Run Text=" de los pedidos"/>
+                                </TextBlock>
+                                <TextBlock Text="{Binding Total, StringFormat='$ {0:N0}'}" Style="{StaticResource TarjetaValor}"/>
+                                <TextBlock Margin="0,6,0,0" Foreground="{StaticResource BrushTextoSecundario}">
+                        <Run Text="{Binding Cantidad, Mode=OneWay}"/>
+                        <Run Text=" pedidos · ticket promedio "/>
+                        <Run Text="{Binding TicketPromedio, Mode=OneWay, StringFormat='$ {0:N0}'}"/>
+                                </TextBlock>
+                            </StackPanel>
+                        </Border>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+
             <!-- ===================== TOP PRODUCTOS + INGRESOS POR CATEGORÍA ===================== -->
             <UniformGrid Columns="2" Rows="1">
                 <Border Style="{StaticResource Tarjeta}">
@@ -193,6 +221,37 @@
                     </StackPanel>
                 </Border>
             </UniformGrid>
+
+            <Border Style="{StaticResource Tarjeta}">
+                <StackPanel>
+                    <TextBlock Text="RANKING POR INGRESOS" Style="{StaticResource TarjetaTitulo}" Margin="0,0,0,10"/>
+                    <ItemsControl ItemsSource="{Binding RankingIngresos}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Grid Margin="0,0,0,10">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="160"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="100"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="{Binding Etiqueta}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
+                                    <Border Grid.Column="1" Height="18" Background="{StaticResource BrushPanelClaro}" CornerRadius="4" VerticalAlignment="Center">
+                                        <Border HorizontalAlignment="Left" Height="18" Background="{StaticResource BrushAmarillo}" CornerRadius="4">
+                                            <Border.Width>
+                                                <MultiBinding Converter="{StaticResource MontoAAnchoConverter}" ConverterParameter="480">
+                                                    <Binding Path="Monto"/>
+                                                    <Binding Path="DataContext.MaxRankingIngresos" RelativeSource="{RelativeSource AncestorType=UserControl}"/>
+                                                </MultiBinding>
+                                            </Border.Width>
+                                        </Border>
+                                    </Border>
+                                    <TextBlock Grid.Column="2" Text="{Binding Monto, StringFormat='$ {0:N0}'}" VerticalAlignment="Center" HorizontalAlignment="Right" FontWeight="Bold"/>
+                                </Grid>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+            </Border>
 
             <!-- ===================== TENDENCIA DE VENTAS POR DÍA (solo rangos > 1 día) ===================== -->
             <Border Style="{StaticResource Tarjeta}"

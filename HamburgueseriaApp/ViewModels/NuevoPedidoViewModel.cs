@@ -54,6 +54,10 @@ public class NuevoPedidoViewModel : ObservableObject
     public ICommand EliminarItemCommand { get; }
     public ICommand CobrarEImprimirCommand { get; }
 
+    /// <summary>(nombre del producto, observación actual) -> nueva observación. null = cancelado.</summary>
+    public Func<string, string?, string?>? SolicitarObservacionItem { get; set; }
+    public ICommand EditarObservacionItemCommand { get; }
+
     /// <summary>Se dispara con un mensaje de error para que la vista lo muestre.</summary>
     public event Action<string>? Error;
     /// <summary>Se dispara con un mensaje de éxito luego de cobrar.</summary>
@@ -93,6 +97,7 @@ public class NuevoPedidoViewModel : ObservableObject
         });
         EliminarItemCommand = new RelayCommand(p => { if (p is PedidoItemViewModel it) { Items.Remove(it); RecalcularTotal(); } });
         CobrarEImprimirCommand = new RelayCommand(_ => CobrarEImprimir(), _ => Items.Count > 0);
+        EditarObservacionItemCommand = new RelayCommand(p => { if (p is PedidoItemViewModel it) EditarObservacionItem(it); });
 
         Items.CollectionChanged += (_, __) =>
         {
@@ -153,18 +158,11 @@ public class NuevoPedidoViewModel : ObservableObject
         var precio = variante?.Precio ?? producto.Precio;
 
         // Se agrupa por producto Y variante, así "Hércules" y "Hércules Doble" son renglones distintos.
-        var existente = Items.FirstOrDefault(i => i.ProductoId == producto.Id && i.Nombre == nombre);
-        if (existente != null)
-        {
-            existente.Cantidad++;
-        }
-        else
-        {
-            var vm = new PedidoItemViewModel(producto, nombre, precio);
-            vm.PropertyChanged += (_, __) => RecalcularTotal();
-            Items.Add(vm);
-        }
+        var existente = BuscarIgual(producto.Id, nombre, variante?.Nombre, null);
+        if (existente != null) existente.Cantidad++;
+        else AgregarItem(new PedidoItemViewModel(producto, nombre, precio, variante?.Nombre));
         RecalcularTotal();
+
     }
 
     private void RecalcularTotal() => Total = Items.Sum(i => i.Subtotal);
@@ -194,6 +192,8 @@ public class NuevoPedidoViewModel : ObservableObject
                     ProductoId = i.ProductoId,
                     NombreProducto = i.Nombre,
                     PrecioUnitario = i.PrecioUnitario,
+                    Variante = i.Variante,
+                    Observaciones = i.Observaciones,
                     Cantidad = i.Cantidad
                 }).ToList()
             };
@@ -229,6 +229,53 @@ public class NuevoPedidoViewModel : ObservableObject
         FormaPagoSeleccionada = FormaPago.Efectivo;
         TipoPedidoSeleccionado = TipoPedido.Retiro;
         Direccion = string.Empty;
+        RecalcularTotal();
+    }
+
+
+    private static string? Normalizar(string? s) => string.IsNullOrWhiteSpace(s) ? null : s.Trim();
+
+    private PedidoItemViewModel? BuscarIgual(int productoId, string nombre, string? variante, string? obs, PedidoItemViewModel? excluir = null)
+        => Items.FirstOrDefault(i => i != excluir && i.ProductoId == productoId
+                                     && i.Nombre == nombre
+                                     && i.Variante == variante
+                                     && Normalizar(i.Observaciones) == Normalizar(obs));
+
+    private void AgregarItem(PedidoItemViewModel vm, int? indice = null)
+    {
+        vm.PropertyChanged += (_, __) => RecalcularTotal();
+        if (indice.HasValue) Items.Insert(indice.Value, vm); else Items.Add(vm);
+    }
+
+    private void EditarObservacionItem(PedidoItemViewModel item)
+    {
+        if (SolicitarObservacionItem == null) return;
+
+        var resultado = SolicitarObservacionItem(item.Nombre, item.Observaciones);
+        if (resultado == null) return;                    // canceló
+        var nueva = Normalizar(resultado);
+        if (nueva == Normalizar(item.Observaciones)) return;
+
+        var igual = BuscarIgual(item.ProductoId, item.Nombre, item.Variante, nueva, item);
+
+        if (item.Cantidad > 1)
+        {
+            // Se separa UNA unidad con la nota nueva; el resto queda como estaba.
+            item.Cantidad--;
+            if (igual != null) igual.Cantidad++;
+            else AgregarItem(new PedidoItemViewModel(item.ProductoId, item.Nombre, item.PrecioUnitario, nueva, item.Variante),
+                  Items.IndexOf(item) + 1);
+        }
+        else if (igual != null)
+        {
+            // Quedó idéntico a otro renglón: se fusionan.
+            igual.Cantidad++;
+            Items.Remove(item);
+        }
+        else
+        {
+            item.Observaciones = nueva;
+        }
         RecalcularTotal();
     }
 }

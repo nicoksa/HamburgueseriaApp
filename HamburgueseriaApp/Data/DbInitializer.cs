@@ -50,6 +50,8 @@ public static class DbInitializer
         AgregarColumnaSiFalta(ctx, "Productos", "PrecioDoble", "TEXT NULL");
         AgregarColumnaSiFalta(ctx, "Productos", "PrecioTriple", "TEXT NULL");
         AgregarColumnaSiFalta(ctx, "Productos", "PrecioCuadruple", "TEXT NULL");
+        AgregarColumnaSiFalta(ctx, "PedidoItems", "Variante", "TEXT NULL");
+        AgregarColumnaSiFalta(ctx, "PedidoItems", "Observaciones", "TEXT NULL");
     }
 
     private static void AgregarColumnaSiFalta(AppDbContext ctx, string tabla, string columna, string definicion)

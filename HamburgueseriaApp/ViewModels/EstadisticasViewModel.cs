@@ -35,6 +35,15 @@ public class VentaDiaria
     public int CantidadPedidos { get; init; }
 }
 
+public class ResumenTipoPedido
+{
+    public string Etiqueta { get; init; } = string.Empty;
+    public int Cantidad { get; init; }
+    public decimal Porcentaje { get; init; }
+    public decimal Total { get; init; }
+    public decimal TicketPromedio { get; init; }
+}
+
 public class EstadisticasViewModel : ObservableObject
 {
     // ================= SELECTOR DE PERÍODO =================
@@ -149,6 +158,13 @@ public class EstadisticasViewModel : ObservableObject
     private bool _mostrarPorDiaSemana;
     public bool MostrarPorDiaSemana { get => _mostrarPorDiaSemana; private set => SetProperty(ref _mostrarPorDiaSemana, value); }
 
+
+    public ObservableCollection<ResumenTipoPedido> TipoPedidoResumen { get; } = new();
+
+    public ObservableCollection<EstadisticaBarraMonto> RankingIngresos { get; } = new();
+    private decimal _maxRankingIngresos = 1;
+    public decimal MaxRankingIngresos { get => _maxRankingIngresos; private set => SetProperty(ref _maxRankingIngresos, value); }
+
     // ================= COMANDOS =================
 
     public ICommand ActualizarCommand { get; }
@@ -241,12 +257,45 @@ public class EstadisticasViewModel : ObservableObject
         var itemsPeriodo = pedidosPeriodo.SelectMany(p => p.Items).ToList();
         TotalUnidadesVendidas = itemsPeriodo.Sum(i => i.Cantidad);
 
-        var masVendido = itemsPeriodo
-            .GroupBy(i => i.NombreProducto)
-            .Select(g => new { Nombre = g.Key, Cant = g.Sum(i => i.Cantidad) })
-            .OrderByDescending(g => g.Cant)
-            .FirstOrDefault();
-        ProductoMasVendido = masVendido?.Nombre ?? "-";
+        var productosPorId = ctx.Productos.ToDictionary(p => p.Id);
+
+        // ---------- Agrupado por producto (simple/doble/triple se suman juntos) ----------
+        var porProducto = itemsPeriodo
+            .GroupBy(i => i.ProductoId)
+            .Select(g =>
+            {
+                productosPorId.TryGetValue(g.Key, out var prod);
+                return new
+                {
+                    Nombre = prod?.Nombre ?? g.First().NombreProducto,
+                    Tipo = prod?.Tipo,
+                    Unidades = g.Sum(i => i.Cantidad),
+                    Ingresos = g.Sum(i => i.Subtotal)
+                };
+            })
+            .ToList();
+
+        // ---------- Top productos por unidades vendidas ----------
+        var topProductos = porProducto
+            .OrderByDescending(x => x.Unidades)
+            .Take(6)
+            .Select(x => new EstadisticaBarra { Etiqueta = x.Nombre, Cantidad = x.Unidades })
+            .ToList();
+        ProductoMasVendido = topProductos.FirstOrDefault()?.Etiqueta ?? "-";
+        TopProductos.Clear();
+        foreach (var t in topProductos) TopProductos.Add(t);
+        MaxTopProductos = Math.Max(1, topProductos.Count > 0 ? topProductos.Max(t => t.Cantidad) : 1);
+
+        // ---------- Ranking por ingresos ----------
+        // Para solo hamburguesas, agregá .Where(x => x.Tipo == TipoProducto.Hamburguesa) antes del OrderByDescending
+        var ranking = porProducto
+            .OrderByDescending(x => x.Ingresos)
+            .Take(8)
+            .Select(x => new EstadisticaBarraMonto { Etiqueta = x.Nombre, Monto = x.Ingresos })
+            .ToList();
+        RankingIngresos.Clear();
+        foreach (var r in ranking) RankingIngresos.Add(r);
+        MaxRankingIngresos = Math.Max(1, ranking.Count > 0 ? ranking.Max(r => r.Monto) : 1);
 
         // ---------- Comparación contra el período anterior de igual duración ----------
         DateTime desdeAnterior = desde.AddDays(-totalDias);
@@ -262,6 +311,22 @@ public class EstadisticasViewModel : ObservableObject
             : Math.Round((TotalVendido - totalAnterior) / totalAnterior * 100, 1);
         VariacionEsPositiva = VariacionPorcentual >= 0;
         VariacionTexto = $"{(VariacionEsPositiva ? "+" : "")}{VariacionPorcentual:0.#}% vs. período anterior";
+
+        // ---------- Envío vs Retiro ----------
+        TipoPedidoResumen.Clear();
+        foreach (var tipo in new[] { TipoPedido.Retiro, TipoPedido.Envio })
+        {
+            var grupo = pedidosPeriodo.Where(p => p.TipoPedido == tipo).ToList();
+            var total = grupo.Sum(p => p.Total);
+            TipoPedidoResumen.Add(new ResumenTipoPedido
+            {
+                Etiqueta = tipo == TipoPedido.Envio ? "ENVÍO" : "RETIRO",
+                Cantidad = grupo.Count,
+                Porcentaje = pedidosPeriodo.Count > 0 ? Math.Round(100m * grupo.Count / pedidosPeriodo.Count, 0) : 0,
+                Total = total,
+                TicketPromedio = grupo.Count > 0 ? total / grupo.Count : 0
+            });
+        }
 
         // ---------- Hora pico (agregado de todo el período) ----------
         var picoGrupo = pedidosPeriodo.GroupBy(p => p.Fecha.Hour).OrderByDescending(g => g.Count()).FirstOrDefault();
@@ -281,19 +346,6 @@ public class EstadisticasViewModel : ObservableObject
         {
             MejorDia = "-";
         }
-
-        var productosPorId = ctx.Productos.ToDictionary(p => p.Id);
-
-        // ---------- Top productos por unidades vendidas ----------
-        var topProductos = itemsPeriodo
-            .GroupBy(i => i.NombreProducto)
-            .Select(g => new EstadisticaBarra { Etiqueta = g.Key, Cantidad = g.Sum(i => i.Cantidad) })
-            .OrderByDescending(g => g.Cantidad)
-            .Take(6)
-            .ToList();
-        TopProductos.Clear();
-        foreach (var t in topProductos) TopProductos.Add(t);
-        MaxTopProductos = Math.Max(1, topProductos.Count > 0 ? topProductos.Max(t => t.Cantidad) : 1);
 
         // ---------- Ingresos por categoría (qué rubro genera más plata) ----------
         var ingresosCategoria = itemsPeriodo

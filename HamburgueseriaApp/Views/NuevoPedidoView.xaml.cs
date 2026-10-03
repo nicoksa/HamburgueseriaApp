@@ -19,6 +19,7 @@ public partial class NuevoPedidoView : UserControl
                 _vmSuscripto.Error -= MostrarError;
                 _vmSuscripto.PedidoConfirmado -= MostrarConfirmacion;
                 _vmSuscripto.SolicitarVariante = null;
+                _vmSuscripto.SolicitarObservacionItem = null;
             }
 
             if (e.NewValue is NuevoPedidoViewModel vm)
@@ -26,6 +27,7 @@ public partial class NuevoPedidoView : UserControl
                 vm.Error += MostrarError;
                 vm.PedidoConfirmado += MostrarConfirmacion;
                 vm.SolicitarVariante = ElegirVariante;
+                vm.SolicitarObservacionItem = PedirObservacionItem;
                 _vmSuscripto = vm;
             }
         };
@@ -41,5 +43,11 @@ public partial class NuevoPedidoView : UserControl
     {
         var dialogo = new SeleccionVarianteWindow(producto) { Owner = Window.GetWindow(this) };
         return dialogo.ShowDialog() == true ? dialogo.Seleccion : null;
+    }
+
+    private string? PedirObservacionItem(string producto, string? actual)
+    {
+        var d = new ObservacionItemWindow(producto, actual) { Owner = Window.GetWindow(this) };
+        return d.ShowDialog() == true ? d.Resultado : null;
     }
 }

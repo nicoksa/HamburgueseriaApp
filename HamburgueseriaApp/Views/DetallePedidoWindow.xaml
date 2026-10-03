@@ -33,7 +33,12 @@
                                     <ColumnDefinition Width="Auto"/>
                                 </Grid.ColumnDefinitions>
                                 <TextBlock Grid.Column="0" Text="{Binding Cantidad, StringFormat='{}{0}x'}" FontWeight="Bold" Margin="0,0,10,0"/>
-                                <TextBlock Grid.Column="1" Text="{Binding NombreProducto}" TextWrapping="Wrap"/>
+                                <StackPanel Grid.Column="1">
+                                    <TextBlock Text="{Binding NombreProducto}" TextWrapping="Wrap"/>
+                                    <TextBlock Text="{Binding Observaciones, StringFormat='→ {0}'}" FontStyle="Italic" FontSize="13"
+                                               Foreground="{StaticResource BrushAmarillo}" TextWrapping="Wrap"
+                                               Visibility="{Binding TieneObservaciones, Converter={StaticResource BoolToVisibleConverter}}"/>
+                                </StackPanel>
                                 <TextBlock Grid.Column="2" Text="{Binding Subtotal, StringFormat='$ {0:N0}'}"
                                            FontWeight="Bold" Foreground="{StaticResource BrushAmarillo}"/>
                             </Grid>
