@@ -124,8 +124,8 @@ public class EstadisticasViewModel : ObservableObject
     private decimal _variacionPorcentual;
     public decimal VariacionPorcentual { get => _variacionPorcentual; private set => SetProperty(ref _variacionPorcentual, value); }
 
-    private bool _variacionEsPositiva = true;
-    public bool VariacionEsPositiva { get => _variacionEsPositiva; private set => SetProperty(ref _variacionEsPositiva, value); }
+    private bool? _variacionEsPositiva = true;
+    public bool? VariacionEsPositiva { get => _variacionEsPositiva; private set => SetProperty(ref _variacionEsPositiva, value); }
 
     private string _variacionTexto = "";
     public string VariacionTexto { get => _variacionTexto; private set => SetProperty(ref _variacionTexto, value); }
@@ -306,11 +306,18 @@ public class EstadisticasViewModel : ObservableObject
             .ToList()
             .Sum();
 
-        VariacionPorcentual = totalAnterior == 0
-            ? (TotalVendido > 0 ? 100 : 0)
-            : Math.Round((TotalVendido - totalAnterior) / totalAnterior * 100, 1);
-        VariacionEsPositiva = VariacionPorcentual >= 0;
-        VariacionTexto = $"{(VariacionEsPositiva ? "+" : "")}{VariacionPorcentual:0.#}% vs. período anterior";
+        if (totalAnterior == 0)
+        {
+            VariacionPorcentual = 0;
+            VariacionEsPositiva = null; // sin dato: se pinta en gris
+            VariacionTexto = "Sin datos previos";
+        }
+        else
+        {
+            VariacionPorcentual = Math.Round((TotalVendido - totalAnterior) / totalAnterior * 100, 1);
+            VariacionEsPositiva = VariacionPorcentual >= 0;
+            VariacionTexto = $"{(VariacionPorcentual >= 0 ? "+" : "")}{VariacionPorcentual:0.#}% vs. período anterior";
+        }
 
         // ---------- Envío vs Retiro ----------
         TipoPedidoResumen.Clear();

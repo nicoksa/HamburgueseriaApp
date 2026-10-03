@@ -82,9 +82,10 @@ public class BoolAColorVariacionConverter : IValueConverter
 {
     private static readonly SolidColorBrush Verde = new((Color)ColorConverter.ConvertFromString("#2FAE4E"));
     private static readonly SolidColorBrush Rojo = new((Color)ColorConverter.ConvertFromString("#E5352B"));
+    private static readonly SolidColorBrush Gris = new((Color)ColorConverter.ConvertFromString("#AEAEAE"));
 
     public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
-        => (value is bool b && b) ? Verde : Rojo;
+        => value is bool b ? (b ? Verde : Rojo) : Gris;
 
     public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
         => throw new NotSupportedException();
