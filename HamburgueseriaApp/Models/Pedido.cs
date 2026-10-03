@@ -20,4 +20,7 @@ public class Pedido
 
     /// <summary>Opcional. Solo tiene sentido si TipoPedido es Envio.</summary>
     public string? Direccion { get; set; }
+
+    /// <summary>Hora pactada de retiro o envío, formato "HH:mm". Opcional.</summary>
+    public string? HoraEntrega { get; set; }
 }

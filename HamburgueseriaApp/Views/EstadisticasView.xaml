@@ -110,7 +110,7 @@
                 </Border>
                 <Border Style="{StaticResource Tarjeta}">
                     <StackPanel>
-                        <TextBlock Text="HORA PICO" Style="{StaticResource TarjetaTitulo}"/>
+                        <TextBlock Text="HORA PICO DE PEDIDOS" Style="{StaticResource TarjetaTitulo}"/>
                         <TextBlock Text="{Binding HoraPico}" FontSize="19" FontWeight="Bold" Margin="0,4,0,0"/>
                     </StackPanel>
                 </Border>
@@ -290,7 +290,7 @@
             <UniformGrid Columns="2" Rows="1">
                 <Border Style="{StaticResource Tarjeta}">
                     <StackPanel>
-                        <TextBlock Text="VENTAS POR HORA" Style="{StaticResource TarjetaTitulo}" Margin="0,0,0,10"/>
+                        <TextBlock Text="PEDIDOS POR HORA" Style="{StaticResource TarjetaTitulo}" Margin="0,0,0,10"/>
                         <ItemsControl ItemsSource="{Binding VentasPorHora}">
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>

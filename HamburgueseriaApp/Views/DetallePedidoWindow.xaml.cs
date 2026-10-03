@@ -16,7 +16,8 @@ public partial class DetallePedidoWindow : Window
         if (string.IsNullOrWhiteSpace(pedido.NombreCliente))
             TxtCliente.Visibility = Visibility.Collapsed;
 
-        TxtTipo.Text = pedido.TipoPedido == TipoPedido.Envio ? "Envío" : "Retiro";
+        var tipo = pedido.TipoPedido == TipoPedido.Envio ? "Envío" : "Retiro";
+        TxtTipo.Text = string.IsNullOrWhiteSpace(pedido.HoraEntrega) ? tipo : $"{tipo} · {pedido.HoraEntrega} hs";
 
         if (pedido.TipoPedido == TipoPedido.Envio && !string.IsNullOrWhiteSpace(pedido.Direccion))
             TxtDireccion.Text = "Dirección: " + pedido.Direccion;

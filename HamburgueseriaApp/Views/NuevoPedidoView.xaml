@@ -171,27 +171,48 @@
                    Visibility="{Binding HayItems, Converter={StaticResource BoolToCollapsedConverter}}"/>
 
                 <!-- Nombre del cliente -->
-                <StackPanel Grid.Row="2" Margin="0,8,0,6">
-                    <TextBlock Text="Nombre del cliente" FontSize="13"
-                       Foreground="{StaticResource BrushTextoSecundario}" Margin="0,0,0,2"/>
-                    <TextBox Text="{Binding NombreCliente, UpdateSourceTrigger=PropertyChanged}"
-                     FontSize="15" Padding="8,4"/>
-                </StackPanel>
+                <Grid Grid.Row="2" Margin="0,10,0,10">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Text="Cliente" VerticalAlignment="Center" Margin="0,0,10,0"
+               Foreground="{StaticResource BrushTextoSecundario}"/>
+                    <TextBox Grid.Column="1" Text="{Binding NombreCliente, UpdateSourceTrigger=PropertyChanged}" FontSize="16"/>
+                </Grid>
 
-                <!-- Tipo de pedido + dirección -->
-                <StackPanel Grid.Row="3" Margin="0,0,0,6">
-                    <StackPanel Orientation="Horizontal" Margin="0,0,0,4">
-                        <RadioButton Content="RETIRO" GroupName="TipoPedido" FontSize="15" Margin="0,0,20,0"
-                             IsChecked="{Binding TipoPedidoSeleccionado, Converter={StaticResource EnumToBoolConverter}, ConverterParameter=Retiro}"/>
-                        <RadioButton Content="ENVÍO" GroupName="TipoPedido" FontSize="15"
-                             IsChecked="{Binding TipoPedidoSeleccionado, Converter={StaticResource EnumToBoolConverter}, ConverterParameter=Envio}"/>
-                    </StackPanel>
-                    <StackPanel Visibility="{Binding EsEnvio, Converter={StaticResource BoolToVisibleConverter}}">
-                        <TextBlock Text="Dirección (opcional)" FontSize="13"
-                           Foreground="{StaticResource BrushTextoSecundario}" Margin="0,0,0,2"/>
-                        <TextBox Text="{Binding Direccion, UpdateSourceTrigger=PropertyChanged}"
-                         FontSize="15" Padding="8,4"/>
-                    </StackPanel>
+                <!-- Tipo de pedido + hora + dirección -->
+                <StackPanel Grid.Row="3" Margin="0,0,0,10">
+                    <Grid Margin="0,0,0,8">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="80"/>
+                        </Grid.ColumnDefinitions>
+
+                        <RadioButton Grid.Column="0" Content="RETIRO" GroupName="TipoPedido" FontSize="16" Margin="0,0,20,0"
+                     IsChecked="{Binding TipoPedidoSeleccionado, Converter={StaticResource EnumToBoolConverter}, ConverterParameter=Retiro}"/>
+                        <RadioButton Grid.Column="1" Content="ENVÍO" GroupName="TipoPedido" FontSize="16"
+                     IsChecked="{Binding TipoPedidoSeleccionado, Converter={StaticResource EnumToBoolConverter}, ConverterParameter=Envio}"/>
+
+                        <TextBlock Grid.Column="3" Text="Hora" VerticalAlignment="Center" Margin="0,0,8,0"
+                   Foreground="{StaticResource BrushTextoSecundario}"/>
+                        <TextBox Grid.Column="4" Text="{Binding HoraEntrega, UpdateSourceTrigger=PropertyChanged}"
+                 MaxLength="5" Padding="8,4" HorizontalContentAlignment="Center"
+                 ToolTip="Opcional. Ej: 21:30"/>
+                    </Grid>
+
+                    <Grid Visibility="{Binding EsEnvio, Converter={StaticResource BoolToVisibleConverter}}">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="Dirección" VerticalAlignment="Center" Margin="0,0,10,0"
+                   Foreground="{StaticResource BrushTextoSecundario}"/>
+                        <TextBox Grid.Column="1" Text="{Binding Direccion, UpdateSourceTrigger=PropertyChanged}" FontSize="16"/>
+                    </Grid>
                 </StackPanel>
 
                 <!-- Observaciones (compactas: 2 líneas) -->

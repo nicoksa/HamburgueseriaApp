@@ -78,6 +78,13 @@ public class NuevoPedidoViewModel : ObservableObject
         get => _direccion;
         set => SetProperty(ref _direccion, value);
     }
+    private string? _horaEntrega;
+    public string? HoraEntrega
+    {
+        get => _horaEntrega;
+        set => SetProperty(ref _horaEntrega, value);
+    }
+
 
     /// <summary>La vista lo asigna para mostrar el diálogo de variantes. Devuelve null si se cancela.</summary>
     public Func<Producto, VarianteProducto?>? SolicitarVariante { get; set; }
@@ -169,6 +176,13 @@ public class NuevoPedidoViewModel : ObservableObject
 
     private void CobrarEImprimir()
     {
+
+        if (!TryNormalizarHora(HoraEntrega, out var horaNormalizada))
+        {
+            Error?.Invoke("La hora no es válida.");
+            return;
+        }
+
         Pedido pedido;
         try
         {
@@ -187,6 +201,7 @@ public class NuevoPedidoViewModel : ObservableObject
                 Direccion = TipoPedidoSeleccionado == TipoPedido.Envio && !string.IsNullOrWhiteSpace(Direccion)
                             ? Direccion.Trim()
                             : null,
+                HoraEntrega = horaNormalizada,
                 Items = Items.Select(i => new PedidoItem
                 {
                     ProductoId = i.ProductoId,
@@ -230,6 +245,43 @@ public class NuevoPedidoViewModel : ObservableObject
         TipoPedidoSeleccionado = TipoPedido.Retiro;
         Direccion = string.Empty;
         RecalcularTotal();
+        HoraEntrega = string.Empty;
+    }
+
+    private static bool TryNormalizarHora(string? texto, out string? hora)
+    {
+        hora = null;
+        if (string.IsNullOrWhiteSpace(texto)) return true; // vacío = sin hora
+
+        var t = texto.Trim().ToLowerInvariant()
+                     .Replace("hs", "").Replace('h', ':').Replace('.', ':').Replace(',', ':')
+                     .Replace(' ', ':')
+                     .Trim(':');
+
+        // "21::30" (por espacios dobles) pasa a "21:30"
+        while (t.Contains("::")) t = t.Replace("::", ":");
+
+        int h = 0, m = 0;
+        if (t.Contains(':'))
+        {
+            var partes = t.Split(':', StringSplitOptions.RemoveEmptyEntries);
+            if (partes.Length is < 1 or > 2 || !int.TryParse(partes[0], out h)) return false;
+            if (partes.Length == 2 && !int.TryParse(partes[1], out m)) return false;
+        }
+        else if (t.Length <= 2)
+        {
+            if (!int.TryParse(t, out h)) return false;
+        }
+        else if (t.Length <= 4 && int.TryParse(t, out var n))
+        {
+            h = n / 100;
+            m = n % 100;
+        }
+        else return false;
+
+        if (h is < 0 or > 23 || m is < 0 or > 59) return false;
+        hora = $"{h:00}:{m:00}";
+        return true;
     }
 
 

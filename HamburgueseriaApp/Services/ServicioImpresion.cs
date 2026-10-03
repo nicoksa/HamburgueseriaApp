@@ -32,7 +32,7 @@ public class ServicioImpresion
     }
 
     // ---------------------------------------------------------------
-    // TICKET (se imprime dos veces, igual)
+    // TICKET (se imprime dos veces)
     // ---------------------------------------------------------------
     private byte[] ConstruirTicket(Pedido pedido)
     {
@@ -54,7 +54,9 @@ public class ServicioImpresion
         Cmd(ESC, (byte)'!', 0x00);      // normal
         Texto($"{pedido.Fecha:dd/MM/yyyy HH:mm}\n");
         Cmd(ESC, (byte)'!', 0x10);
-        Texto(pedido.TipoPedido == TipoPedido.Envio ? "ENVÍO\n" : "RETIRO\n");
+        Cmd(ESC, (byte)'E', 1);
+        Texto(DescripcionEntrega(pedido) + "\n");
+        Cmd(ESC, (byte)'E', 0);
         Cmd(ESC, (byte)'!', 0x00);
         if (pedido.TipoPedido == TipoPedido.Envio && !string.IsNullOrWhiteSpace(pedido.Direccion))
             foreach (var l in Envolver("Dir: " + pedido.Direccion, ANCHO_COLUMNAS))
@@ -120,6 +122,12 @@ public class ServicioImpresion
         FormaPago.Transferencia => "Transferencia",
         _ => formaPago.ToString()
     };
+
+    private static string DescripcionEntrega(Pedido p)
+    {
+        var tipo = p.TipoPedido == TipoPedido.Envio ? "ENVÍO" : "RETIRO";
+        return string.IsNullOrWhiteSpace(p.HoraEntrega) ? tipo : $"{tipo} {p.HoraEntrega} hs";
+    }
 
     private static IEnumerable<string> Envolver(string texto, int ancho)
     {
