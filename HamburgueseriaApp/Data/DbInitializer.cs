@@ -18,24 +18,56 @@ public static class DbInitializer
         if (contexto.Productos.Any())
             return;
 
-        var productos = new List<Producto>
+        var productos = new List<Producto>();
+
+        // ---------- Hamburguesas clásicas: Simple $13.000 / Doble $16.000 / Triple $19.000 ----------
+        string[] clasicas =
         {
-            new() { Nombre = "Hércules",  Precio = 8500, Tipo = TipoProducto.Hamburguesa, Activo = true },
-            new() { Nombre = "Batman",    Precio = 8800, Tipo = TipoProducto.Hamburguesa, Activo = true },
-            new() { Nombre = "Wolverine", Precio = 9200, Tipo = TipoProducto.Hamburguesa, Activo = true },
-            new() { Nombre = "Aquaman",   Precio = 8700, Tipo = TipoProducto.Hamburguesa, Activo = true },
-
-            new() { Nombre = "Papas",              Precio = 2500, Tipo = TipoProducto.Papas, Activo = true },
-            new() { Nombre = "Papas con cheddar",  Precio = 3200, Tipo = TipoProducto.Papas, Activo = true },
-
-            new() { Nombre = "Extra cheddar", Precio = 800,  Tipo = TipoProducto.Extra, Activo = true },
-            new() { Nombre = "Extra bacon",   Precio = 1200, Tipo = TipoProducto.Extra, Activo = true },
-            new() { Nombre = "Extra medallón", Precio = 3500, Tipo = TipoProducto.Extra, Activo = true },
-
-            new() { Nombre = "Coca-Cola", Precio = 2000, Tipo = TipoProducto.Bebida, Activo = true },
-            new() { Nombre = "Sprite",    Precio = 2000, Tipo = TipoProducto.Bebida, Activo = true },
-            new() { Nombre = "Agua",      Precio = 1500, Tipo = TipoProducto.Bebida, Activo = true },
+            "Ironman", "Capitán América", "Hulk", "Flash", "Batman", "Wolverine",
+            "Namor", "Thor", "Tormenta", "Superman", "Robin", "Rusty", "Aquaman", "Hércules"
         };
+        foreach (var nombre in clasicas)
+        {
+            productos.Add(new()
+            {
+                Nombre = nombre,
+                Precio = 13000,
+                PrecioDoble = 16000,
+                PrecioTriple = 19000,
+                Tipo = TipoProducto.Hamburguesa,
+                Activo = true
+            });
+        }
+
+        // Cheeseburger tiene precios propios: S $10.000 / D $14.000 / T $18.000
+        productos.Add(new()
+        {
+            Nombre = "Cheeseburger",
+            Precio = 10000,
+            PrecioDoble = 14000,
+            PrecioTriple = 18000,
+            Tipo = TipoProducto.Hamburguesa,
+            Activo = true
+        });
+
+        // ---------- House Edition: precio único $18.000 ----------
+        foreach (var nombre in new[] { "Gorgory", "Barney", "Marge", "Montgomery" })
+        {
+            productos.Add(new()
+            {
+                Nombre = nombre,
+                Precio = 18000,
+                Tipo = TipoProducto.Hamburguesa,
+                Activo = true
+            });
+        }
+
+        // Veggie: $14.000
+        productos.Add(new() { Nombre = "Veggie", Precio = 14000, Tipo = TipoProducto.Hamburguesa, Activo = true });
+
+        // ---------- Papas ----------
+        productos.Add(new() { Nombre = "Papas fritas", Precio = 9000, Tipo = TipoProducto.Papas, Activo = true });
+        productos.Add(new() { Nombre = "Papas fritas con cheddar", Precio = 12000, Tipo = TipoProducto.Papas, Activo = true });
 
         contexto.Productos.AddRange(productos);
         contexto.SaveChanges();
