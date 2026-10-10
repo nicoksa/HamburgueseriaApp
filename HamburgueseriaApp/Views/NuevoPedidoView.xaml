@@ -208,10 +208,17 @@
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto"/>
                             <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="90"/>
                         </Grid.ColumnDefinitions>
                         <TextBlock Text="Dirección" VerticalAlignment="Center" Margin="0,0,10,0"
-                   Foreground="{StaticResource BrushTextoSecundario}"/>
+                                    Foreground="{StaticResource BrushTextoSecundario}"/>
                         <TextBox Grid.Column="1" Text="{Binding Direccion, UpdateSourceTrigger=PropertyChanged}" FontSize="16"/>
+                        <TextBlock Grid.Column="2" Text="Envío $" VerticalAlignment="Center" Margin="12,0,8,0"
+                                   Foreground="{StaticResource BrushTextoSecundario}"/>
+                        <TextBox Grid.Column="3" Text="{Binding CostoEnvioTexto, UpdateSourceTrigger=PropertyChanged}"
+                                 FontSize="16" HorizontalContentAlignment="Right"
+                                 ToolTip="Costo del envío. Se suma al total."/>
                     </Grid>
                 </StackPanel>
 
@@ -220,7 +227,7 @@
                     <TextBlock Text="Observaciones" FontSize="13"
                        Foreground="{StaticResource BrushTextoSecundario}" Margin="0,0,0,2"/>
                     <TextBox Text="{Binding Observaciones, UpdateSourceTrigger=PropertyChanged}"
-                     AcceptsReturn="True" TextWrapping="Wrap" Height="46"
+                     AcceptsReturn="True" TextWrapping="Wrap" Height="35"
                      FontSize="14" Padding="8,4"
                      VerticalScrollBarVisibility="Auto"/>
                 </StackPanel>
@@ -240,7 +247,11 @@
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
-                        <TextBlock Grid.Column="0" Text="TOTAL" FontSize="18" VerticalAlignment="Center"/>
+                        <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                            <TextBlock Text="TOTAL" FontSize="18" VerticalAlignment="Center"/>
+                            <TextBlock Text="{Binding TextoEnvioIncluido}" FontSize="12" Margin="10,0,0,0"
+                                     Foreground="{StaticResource BrushTextoSecundario}" VerticalAlignment="Center"/>
+                        </StackPanel>
                         <TextBlock Grid.Column="1" Text="{Binding Total, StringFormat='$ {0:N0}'}"
                            FontSize="26" FontWeight="Bold" Foreground="{StaticResource BrushAmarillo}"/>
                     </Grid>

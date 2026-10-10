@@ -23,4 +23,9 @@ public class Pedido
 
     /// <summary>Hora pactada de retiro o envío, formato "HH:mm". Opcional.</summary>
     public string? HoraEntrega { get; set; }
+
+    /// Costo del envío cargado por el dueño. Null/0 = sin cargo.
+    public decimal? CostoEnvio { get; set; }
+
+    public decimal TotalSinEnvio => Total - (CostoEnvio ?? 0);
 }

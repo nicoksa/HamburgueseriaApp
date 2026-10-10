@@ -67,7 +67,14 @@ public class NuevoPedidoViewModel : ObservableObject
     public TipoPedido TipoPedidoSeleccionado
     {
         get => _tipoPedidoSeleccionado;
-        set { if (SetProperty(ref _tipoPedidoSeleccionado, value)) OnPropertyChanged(nameof(EsEnvio)); }
+        set
+        {
+            if (SetProperty(ref _tipoPedidoSeleccionado, value))
+            {
+                OnPropertyChanged(nameof(EsEnvio));
+                RecalcularTotal();
+            }
+        }
     }
 
     public bool EsEnvio => TipoPedidoSeleccionado == TipoPedido.Envio;
@@ -85,6 +92,27 @@ public class NuevoPedidoViewModel : ObservableObject
         set => SetProperty(ref _horaEntrega, value);
     }
 
+
+    private string? _costoEnvioTexto;
+    /// Texto tal como lo escribe el dueño. Se toman solo los dígitos ("1.500", "$1500" → 1500).
+    public string? CostoEnvioTexto
+    {
+        get => _costoEnvioTexto;
+        set { if (SetProperty(ref _costoEnvioTexto, value)) RecalcularTotal(); }
+    }
+
+    /// Costo de envío efectivo: solo cuenta si el pedido es Envío.
+    public decimal CostoEnvio
+    {
+        get
+        {
+            if (!EsEnvio || string.IsNullOrWhiteSpace(CostoEnvioTexto)) return 0;
+            var digitos = new string(CostoEnvioTexto.Where(char.IsDigit).ToArray());
+            return decimal.TryParse(digitos, out var v) ? v : 0;
+        }
+    }
+
+    public string TextoEnvioIncluido => CostoEnvio > 0 ? $"(incluye envío $ {CostoEnvio:N0})" : string.Empty;
 
     /// <summary>La vista lo asigna para mostrar el diálogo de variantes. Devuelve null si se cancela.</summary>
     public Func<Producto, VarianteProducto?>? SolicitarVariante { get; set; }
@@ -172,7 +200,11 @@ public class NuevoPedidoViewModel : ObservableObject
 
     }
 
-    private void RecalcularTotal() => Total = Items.Sum(i => i.Subtotal);
+    private void RecalcularTotal()
+    {
+        Total = Items.Sum(i => i.Subtotal) + CostoEnvio;
+        OnPropertyChanged(nameof(TextoEnvioIncluido));
+    }
 
     private void CobrarEImprimir()
     {
@@ -198,6 +230,7 @@ public class NuevoPedidoViewModel : ObservableObject
                 Observaciones = Observaciones,
                 NombreCliente = string.IsNullOrWhiteSpace(NombreCliente) ? null : NombreCliente.Trim(),
                 TipoPedido = TipoPedidoSeleccionado,
+                CostoEnvio = CostoEnvio > 0 ? CostoEnvio : null,
                 Direccion = TipoPedidoSeleccionado == TipoPedido.Envio && !string.IsNullOrWhiteSpace(Direccion)
                             ? Direccion.Trim()
                             : null,
@@ -246,6 +279,7 @@ public class NuevoPedidoViewModel : ObservableObject
         Direccion = string.Empty;
         RecalcularTotal();
         HoraEntrega = string.Empty;
+        CostoEnvioTexto = string.Empty;
     }
 
     private static bool TryNormalizarHora(string? texto, out string? hora)

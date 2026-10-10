@@ -42,6 +42,8 @@ public class ResumenTipoPedido
     public decimal Porcentaje { get; init; }
     public decimal Total { get; init; }
     public decimal TicketPromedio { get; init; }
+    public decimal CostoEnvios { get; init; }
+    public bool MostrarCostoEnvios { get; init; }
 }
 
 public class EstadisticasViewModel : ObservableObject
@@ -129,6 +131,20 @@ public class EstadisticasViewModel : ObservableObject
 
     private string _variacionTexto = "";
     public string VariacionTexto { get => _variacionTexto; private set => SetProperty(ref _variacionTexto, value); }
+
+    // ================= ENVÍOS  =================
+
+    private decimal _totalEnvios;
+    public decimal TotalEnvios { get => _totalEnvios; private set => SetProperty(ref _totalEnvios, value); }
+
+    private decimal _enviosTransferencia;
+    public decimal EnviosTransferencia { get => _enviosTransferencia; private set => SetProperty(ref _enviosTransferencia, value); }
+
+    private decimal _enviosEfectivo;
+    public decimal EnviosEfectivo { get => _enviosEfectivo; private set => SetProperty(ref _enviosEfectivo, value); }
+
+    private int _cantidadEnvios;
+    public int CantidadEnvios { get => _cantidadEnvios; private set => SetProperty(ref _cantidadEnvios, value); }
 
     // ================= GRÁFICOS =================
 
@@ -248,11 +264,18 @@ public class EstadisticasViewModel : ObservableObject
             .Where(p => p.Fecha >= desde && p.Fecha < hastaExclusive)
             .ToList();
 
-        TotalVendido = pedidosPeriodo.Sum(p => p.Total);
+        TotalVendido = pedidosPeriodo.Sum(p => p.TotalSinEnvio);
         CantidadPedidos = pedidosPeriodo.Count;
         TicketPromedio = CantidadPedidos > 0 ? TotalVendido / CantidadPedidos : 0;
-        TotalEfectivo = pedidosPeriodo.Where(p => p.FormaPago == FormaPago.Efectivo).Sum(p => p.Total);
-        TotalTransferencia = pedidosPeriodo.Where(p => p.FormaPago == FormaPago.Transferencia).Sum(p => p.Total);
+        TotalEfectivo = pedidosPeriodo.Where(p => p.FormaPago == FormaPago.Efectivo).Sum(p => p.TotalSinEnvio);
+        TotalTransferencia = pedidosPeriodo.Where(p => p.FormaPago == FormaPago.Transferencia).Sum(p => p.TotalSinEnvio);
+
+        // Envíos: plata que no es del negocio
+        var pedidosConEnvio = pedidosPeriodo.Where(p => p.CostoEnvio is > 0).ToList();
+        CantidadEnvios = pedidosConEnvio.Count;
+        TotalEnvios = pedidosConEnvio.Sum(p => p.CostoEnvio ?? 0);
+        EnviosTransferencia = pedidosConEnvio.Where(p => p.FormaPago == FormaPago.Transferencia).Sum(p => p.CostoEnvio ?? 0);
+        EnviosEfectivo = pedidosConEnvio.Where(p => p.FormaPago == FormaPago.Efectivo).Sum(p => p.CostoEnvio ?? 0);
 
         var itemsPeriodo = pedidosPeriodo.SelectMany(p => p.Items).ToList();
         TotalUnidadesVendidas = itemsPeriodo.Sum(i => i.Cantidad);
@@ -302,9 +325,9 @@ public class EstadisticasViewModel : ObservableObject
         DateTime hastaAnteriorExclusive = desde;
         decimal totalAnterior = ctx.Pedidos
             .Where(p => p.Fecha >= desdeAnterior && p.Fecha < hastaAnteriorExclusive)
-            .Select(p => p.Total)
+            .Select(p => new { p.Total, p.CostoEnvio })   // proyectamos y sumamos en memoria (SQLite + decimal)
             .ToList()
-            .Sum();
+            .Sum(x => x.Total - (x.CostoEnvio ?? 0));
 
         if (totalAnterior == 0)
         {
@@ -324,14 +347,16 @@ public class EstadisticasViewModel : ObservableObject
         foreach (var tipo in new[] { TipoPedido.Retiro, TipoPedido.Envio })
         {
             var grupo = pedidosPeriodo.Where(p => p.TipoPedido == tipo).ToList();
-            var total = grupo.Sum(p => p.Total);
+            var total = grupo.Sum(p => p.TotalSinEnvio);
             TipoPedidoResumen.Add(new ResumenTipoPedido
             {
                 Etiqueta = tipo == TipoPedido.Envio ? "ENVÍO" : "RETIRO",
                 Cantidad = grupo.Count,
                 Porcentaje = pedidosPeriodo.Count > 0 ? Math.Round(100m * grupo.Count / pedidosPeriodo.Count, 0) : 0,
                 Total = total,
-                TicketPromedio = grupo.Count > 0 ? total / grupo.Count : 0
+                TicketPromedio = grupo.Count > 0 ? total / grupo.Count : 0,
+                CostoEnvios = tipo == TipoPedido.Envio ? grupo.Sum(p => p.CostoEnvio ?? 0) : 0,
+                MostrarCostoEnvios = tipo == TipoPedido.Envio
             });
         }
 
@@ -344,7 +369,7 @@ public class EstadisticasViewModel : ObservableObject
         {
             var mejorDiaGrupo = pedidosPeriodo
                 .GroupBy(p => p.Fecha.Date)
-                .Select(g => new { Fecha = g.Key, Total = g.Sum(p => p.Total) })
+                .Select(g => new { Fecha = g.Key, Total = g.Sum(p => p.TotalSinEnvio) })
                 .OrderByDescending(g => g.Total)
                 .First();
             MejorDia = $"{mejorDiaGrupo.Fecha:dd/MM} (${mejorDiaGrupo.Total:N0})";
@@ -376,7 +401,7 @@ public class EstadisticasViewModel : ObservableObject
         {
             var porDia = pedidosPeriodo
                 .GroupBy(p => p.Fecha.Date)
-                .Select(g => new VentaDiaria { Fecha = g.Key, Total = g.Sum(p => p.Total), CantidadPedidos = g.Count() })
+                .Select(g => new VentaDiaria { Fecha = g.Key, Total = g.Sum(p => p.TotalSinEnvio), CantidadPedidos = g.Count() })
                 .OrderBy(v => v.Fecha)
                 .ToList();
             foreach (var v in porDia) VentasPorDia.Add(v);
@@ -387,7 +412,7 @@ public class EstadisticasViewModel : ObservableObject
             MaxVentaDiaria = 1;
         }
 
-        // ---------- Ventas por hora (agregado del período completo, útil para organizar turnos) ----------
+        // ---------- Ventas por hora ----------
         var porHora = pedidosPeriodo
             .GroupBy(p => p.Fecha.Hour)
             .Select(g => new EstadisticaBarra { Etiqueta = $"{g.Key:00}:00", Cantidad = g.Count() })
@@ -401,7 +426,7 @@ public class EstadisticasViewModel : ObservableObject
         string[] nombresDias = { "Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado" };
         var porDiaSemana = pedidosPeriodo
             .GroupBy(p => p.Fecha.DayOfWeek)
-            .Select(g => new EstadisticaBarraMonto { Etiqueta = nombresDias[(int)g.Key], Monto = g.Sum(p => p.Total) })
+            .Select(g => new EstadisticaBarraMonto { Etiqueta = nombresDias[(int)g.Key], Monto = g.Sum(p => p.TotalSinEnvio) })
             .OrderByDescending(v => v.Monto)
             .ToList();
         VentasPorDiaSemana.Clear();

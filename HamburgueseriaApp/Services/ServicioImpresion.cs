@@ -67,9 +67,16 @@ public class ServicioImpresion
         Cmd(ESC, (byte)'a', 0);         // izquierda
         foreach (var item in pedido.Items)
         {
+
             Cmd(ESC, (byte)'!', 0x10);
-            foreach (var l in Envolver($"{item.Cantidad} {item.NombreProducto}", ANCHO_COLUMNAS))
-                Texto($"{l}\n");
+            Texto(LineaConPrecio($"{item.Cantidad} {item.NombreProducto}", item.Subtotal));
+
+            // Para los que pagan por separado: precio de cada unidad
+            if (item.Cantidad > 1)
+            {
+                Cmd(ESC, (byte)'!', 0x00);
+                Texto($"   ${item.PrecioUnitario:N0} c/u\n");
+            }
 
             if (!string.IsNullOrWhiteSpace(item.Observaciones))
             {
@@ -80,6 +87,14 @@ public class ServicioImpresion
                 Cmd(ESC, (byte)'E', 0);  // negrita OFF
             }
         }
+
+        // Costo de envío como un renglón más, con el mismo formato que los ítems
+        if (pedido.TipoPedido == TipoPedido.Envio && pedido.CostoEnvio is > 0)
+        {
+            Cmd(ESC, (byte)'!', 0x10);
+            Texto(LineaConPrecio("Envío", pedido.CostoEnvio.Value));
+        }
+        Cmd(ESC, (byte)'!', 0x00);
         Cmd(ESC, (byte)'!', 0x00);
 
         if (!string.IsNullOrWhiteSpace(pedido.Observaciones))
@@ -127,6 +142,22 @@ public class ServicioImpresion
     {
         var tipo = p.TipoPedido == TipoPedido.Envio ? "ENVÍO" : "RETIRO";
         return string.IsNullOrWhiteSpace(p.HoraEntrega) ? tipo : $"{tipo} {p.HoraEntrega} hs";
+    }
+
+   
+    private static string LineaConPrecio(string texto, decimal monto)
+    {
+        var precio = $"${monto:N0}";
+        int anchoTexto = ANCHO_COLUMNAS - precio.Length - 1;
+
+        var lineas = Envolver(texto, anchoTexto).ToList();
+        if (lineas.Count == 0) lineas.Add(string.Empty);
+
+        var sb = new StringBuilder();
+        sb.Append(lineas[0].PadRight(anchoTexto + 1)).Append(precio).Append('\n');
+        foreach (var l in lineas.Skip(1))
+            sb.Append("  ").Append(l).Append('\n');
+        return sb.ToString();
     }
 
     private static IEnumerable<string> Envolver(string texto, int ancho)

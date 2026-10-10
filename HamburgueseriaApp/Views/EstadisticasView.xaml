@@ -100,6 +100,35 @@
                 </Border>
             </UniformGrid>
 
+            <!-- ===================== ENVÍOS (motomandado) ===================== -->
+            <UniformGrid Columns="3" Rows="1">
+                <Border Style="{StaticResource Tarjeta}">
+                    <StackPanel>
+                        <TextBlock Text="ENVÍOS COBRADOS" Style="{StaticResource TarjetaTitulo}"/>
+                        <TextBlock Text="{Binding TotalEnvios, StringFormat='$ {0:N0}'}" Style="{StaticResource TarjetaValor}"/>
+                        <TextBlock Margin="0,6,0,0" Foreground="{StaticResource BrushTextoSecundario}">
+                <Run Text="{Binding CantidadEnvios, Mode=OneWay}"/>
+                <Run Text=" envíos con cargo"/>
+                        </TextBlock>
+                    </StackPanel>
+                </Border>
+                <Border Style="{StaticResource Tarjeta}">
+                    <StackPanel>
+                        <TextBlock Text="ENVÍOS POR TRANSFERENCIA" Style="{StaticResource TarjetaTitulo}"/>
+                        <TextBlock Text="{Binding EnviosTransferencia, StringFormat='$ {0:N0}'}" Style="{StaticResource TarjetaValor}"/>
+                        
+                       
+                    </StackPanel>
+                </Border>
+                <Border Style="{StaticResource Tarjeta}">
+                    <StackPanel>
+                        <TextBlock Text="ENVÍOS EN EFECTIVO" Style="{StaticResource TarjetaTitulo}"/>
+                        <TextBlock Text="{Binding EnviosEfectivo, StringFormat='$ {0:N0}'}" Style="{StaticResource TarjetaValor}"/>
+
+                    </StackPanel>
+                </Border>
+            </UniformGrid>
+
             <!-- ===================== DATOS DESTACADOS ===================== -->
             <UniformGrid Columns="4" Rows="1">
                 <Border Style="{StaticResource Tarjeta}">
@@ -140,6 +169,7 @@
                         <Border Style="{StaticResource Tarjeta}">
                             <StackPanel>
                                 <TextBlock Style="{StaticResource TarjetaTitulo}">
+                                    <Run Text="RECAUDADO"/>
                         <Run Text="{Binding Etiqueta, Mode=OneWay}"/>
                         <Run Text=" · "/>
                         <Run Text="{Binding Porcentaje, Mode=OneWay, StringFormat='{}{0:0}%'}"/>
@@ -148,8 +178,14 @@
                                 <TextBlock Text="{Binding Total, StringFormat='$ {0:N0}'}" Style="{StaticResource TarjetaValor}"/>
                                 <TextBlock Margin="0,6,0,0" Foreground="{StaticResource BrushTextoSecundario}">
                         <Run Text="{Binding Cantidad, Mode=OneWay}"/>
-                        <Run Text=" pedidos · ticket promedio "/>
-                        <Run Text="{Binding TicketPromedio, Mode=OneWay, StringFormat='$ {0:N0}'}"/>
+                        <Run Text=" pedidos  "/>
+                        
+                                </TextBlock>
+                                <TextBlock Margin="0,8,0,0" FontWeight="SemiBold"
+                                         Visibility="{Binding MostrarCostoEnvios, Converter={StaticResource BoolToVisibleConverter}}">
+                                        <Run Text="No incluye envíos cobrados: " Foreground="{StaticResource BrushTextoSecundario}"/>
+                                        <Run Text="{Binding CostoEnvios, Mode=OneWay, StringFormat='$ {0:N0}'}"
+                                           Foreground="{StaticResource BrushRojo}"/>
                                 </TextBlock>
                             </StackPanel>
                         </Border>
