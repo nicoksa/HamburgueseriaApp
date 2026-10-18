@@ -28,4 +28,10 @@ public class Pedido
     public decimal? CostoEnvio { get; set; }
 
     public decimal TotalSinEnvio => Total - (CostoEnvio ?? 0);
+
+    public bool Anulado { get; set; }
+    public DateTime? FechaAnulacion { get; set; }
+    public string? MotivoAnulacion { get; set; }
+
+    public string EstadoTexto => Anulado ? "ANULADO" : "";
 }

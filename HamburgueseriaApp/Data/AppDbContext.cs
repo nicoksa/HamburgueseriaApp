@@ -41,6 +41,7 @@ public class AppDbContext : DbContext
             e.Property(p => p.TipoPedido).HasConversion<string>();
             e.Property(p => p.Direccion).HasMaxLength(150);
             e.Property(p => p.NombreCliente).HasMaxLength(60);
+            e.Property(p => p.MotivoAnulacion).HasMaxLength(150);
             e.HasMany(p => p.Items)
              .WithOne()
              .HasForeignKey(i => i.PedidoId)

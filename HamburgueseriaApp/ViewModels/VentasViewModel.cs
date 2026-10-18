@@ -40,12 +40,14 @@ public class VentasViewModel : ObservableObject
     public ICommand ReimprimirCommand { get; }
     public ICommand FiltrarHoyCommand { get; }
     public ICommand VerDetalleCommand { get; }
+    public ICommand AnularCommand { get; }
 
     public VentasViewModel()
     {
-        ReimprimirCommand = new RelayCommand(_ => Reimprimir(), _ => Seleccionado != null);
+        ReimprimirCommand = new RelayCommand(_ => Reimprimir(), _ => Seleccionado is { Anulado: false });
         FiltrarHoyCommand = new RelayCommand(_ => { Desde = DateTime.Today; Hasta = DateTime.Today; });
         VerDetalleCommand = new RelayCommand(_ => VerDetalle(), _ => Seleccionado != null);
+        AnularCommand = new RelayCommand(_ => Anular(), _ => Seleccionado is { Anulado: false });
         Cargar();
     }
 
@@ -84,5 +86,44 @@ public class VentasViewModel : ObservableObject
         if (Seleccionado == null) return;
         var ventana = new DetallePedidoWindow(Seleccionado);
         ventana.ShowDialog();
+    }
+
+
+    private void Anular()
+    {
+        if (Seleccionado == null || Seleccionado.Anulado) return;
+
+        var numero = Seleccionado.NumeroPedido;
+        var id = Seleccionado.Id;
+
+        var confirmar = MessageBox.Show(
+            $"¿Anular el pedido Nº {numero} por ${Seleccionado.Total.ToString("N0", new System.Globalization.CultureInfo("es-AR"))}?\n\nEsta acción no se puede deshacer.",
+            "Confirmar anulación",
+            MessageBoxButton.YesNo,
+            MessageBoxImage.Warning);
+
+        if (confirmar != MessageBoxResult.Yes) return;
+ 
+        var dialogo = new ObservacionItemWindow($"Motivo de anulación (Pedido Nº {numero})", null);
+        if (dialogo.ShowDialog() != true) return;
+
+        try
+        {
+            using var ctx = new AppDbContext();
+            var pedido = ctx.Pedidos.Find(id);
+            if (pedido == null || pedido.Anulado) return;
+
+            pedido.Anulado = true;
+            pedido.FechaAnulacion = DateTime.Now;
+            pedido.MotivoAnulacion = string.IsNullOrWhiteSpace(dialogo.Resultado) ? null : dialogo.Resultado.Trim();
+            ctx.SaveChanges();
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show("No se pudo anular: " + ex.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            return;
+        }
+
+        Cargar();
     }
 }

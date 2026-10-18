@@ -19,9 +19,20 @@
             <Button Content="Hoy" Style="{StaticResource BotonAccion}" Command="{Binding FiltrarHoyCommand}"/>
             <Button Content="🔍 Ver detalle" Style="{StaticResource BotonAccion}" Command="{Binding VerDetalleCommand}"/>
             <Button Content="🖨️ Reimprimir" Style="{StaticResource BotonAccion}" Command="{Binding ReimprimirCommand}"/>
+            <Button Content="🚫 Anular" Style="{StaticResource BotonAccion}" Command="{Binding AnularCommand}"/>
         </StackPanel>
 
         <DataGrid Grid.Row="1" ItemsSource="{Binding Pedidos}" SelectedItem="{Binding Seleccionado}">
+            <DataGrid.RowStyle>
+                <Style TargetType="DataGridRow">
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding Anulado}" Value="True">
+                            <Setter Property="Foreground" Value="{StaticResource BrushRojo}"/>
+                            <Setter Property="Opacity" Value="0.55"/>
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </DataGrid.RowStyle>
             <DataGrid.Columns>
                 <DataGridTextColumn Header="Nº Pedido" Binding="{Binding NumeroPedido}" Width="Auto"/>
                 <DataGridTextColumn Header="Cliente" Binding="{Binding NombreCliente}" Width="*"/>
@@ -30,6 +41,7 @@
                 <DataGridTextColumn Header="Forma de pago" Binding="{Binding FormaPago}" Width="*"/>
                 <DataGridTextColumn Header="Tipo" Binding="{Binding TipoPedido}" Width="Auto"/>
                 <DataGridTextColumn Header="Dirección" Binding="{Binding Direccion}" Width="*"/>
+                <DataGridTextColumn Header="Estado" Binding="{Binding EstadoTexto}" Width="Auto"/>
             </DataGrid.Columns>
         </DataGrid>
     </Grid>

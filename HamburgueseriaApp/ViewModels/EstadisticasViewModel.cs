@@ -261,7 +261,7 @@ public class EstadisticasViewModel : ObservableObject
 
         var pedidosPeriodo = ctx.Pedidos
             .Include(p => p.Items)
-            .Where(p => p.Fecha >= desde && p.Fecha < hastaExclusive)
+            .Where(p => !p.Anulado && p.Fecha >= desde && p.Fecha < hastaExclusive)
             .ToList();
 
         TotalVendido = pedidosPeriodo.Sum(p => p.TotalSinEnvio);
@@ -324,8 +324,8 @@ public class EstadisticasViewModel : ObservableObject
         DateTime desdeAnterior = desde.AddDays(-totalDias);
         DateTime hastaAnteriorExclusive = desde;
         decimal totalAnterior = ctx.Pedidos
-            .Where(p => p.Fecha >= desdeAnterior && p.Fecha < hastaAnteriorExclusive)
-            .Select(p => new { p.Total, p.CostoEnvio })   // proyectamos y sumamos en memoria (SQLite + decimal)
+            .Where(p => !p.Anulado && p.Fecha >= desdeAnterior && p.Fecha < hastaAnteriorExclusive)
+                    .Select(p => new { p.Total, p.CostoEnvio })   // proyectamos y sumamos en memoria (SQLite + decimal)
             .ToList()
             .Sum(x => x.Total - (x.CostoEnvio ?? 0));
 

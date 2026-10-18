@@ -25,6 +25,9 @@ public partial class DetallePedidoWindow : Window
             TxtDireccion.Text = "Dirección: " + pedido.Direccion;
         else
             TxtDireccion.Visibility = Visibility.Collapsed;
+
+        if (pedido.Anulado)
+            Title = $"Detalle del pedido (ANULADO: {pedido.MotivoAnulacion})";
     }
 
     private void Cerrar_Click(object sender, RoutedEventArgs e) => Close();
